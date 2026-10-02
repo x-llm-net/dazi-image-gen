@@ -63,6 +63,8 @@ For normal users, open the **Plugins** page from Dazi's sidebar, choose **Add pl
 git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
+If the upstream `dsh-image-gen` is already installed, uninstall it from **Plugins → Installed** before adding this Dazi fork. The plugin manager does not allow two sources for the same package name; Xiaowen model credentials remain in **Settings → Models** and do not need to be entered again.
+
 Or run this in the profile terminal:
 
 ```bash
@@ -102,6 +104,8 @@ pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-ge
 ### 1. Install the plugin
 
 Requirements: Dazi workbench (based on DeepSeek Harness), Node.js `^22.19.0` or `>= 24.0.0`.
+
+If the upstream `dsh-image-gen` is already installed, uninstall it from **Plugins → Installed** first; the plugin manager does not allow duplicate package names.
 
 Run this command in the Dazi profile terminal:
 

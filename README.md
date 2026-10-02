@@ -63,6 +63,8 @@
 git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
+如果已安装上游版 `dsh-image-gen`，先在「插件 → 已安装」中卸载它，再添加这个搭子版本。插件管理器不允许两个来源的同名包同时安装；小文模型凭据保存在「设置 → 模型」，不需要重新填写。
+
 也可以在工作台 profile 的终端执行：
 
 ```bash
@@ -102,6 +104,8 @@ pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-ge
 ### 1. 安装插件
 
 环境要求：搭子工作台（基于 DeepSeek Harness），Node.js `^22.19.0` 或 `>= 24.0.0`。
+
+若此前已安装上游版 `dsh-image-gen`，请先从「插件 → 已安装」卸载，再安装此版本；插件管理器不允许同名包重复安装。
 
 在搭子的 profile 终端运行：
 
