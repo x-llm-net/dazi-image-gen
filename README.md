@@ -69,7 +69,7 @@ git+https://github.com/x-llm-net/dazi-image-gen.git
 pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
-安装完成后，在插件管理器中启用它并重启工作台。GitHub 仓库只是插件的发布源，不会自动安装；安装、启用、禁用和卸载都由搭子的原生插件管理器负责。
+安装完成后，在安装结果中点击「立即启用」，再从「已安装」打开插件设置。GitHub 仓库只是插件的发布源，不会自动安装；安装、启用、禁用和卸载都由搭子的原生插件管理器负责。
 
 > **已有 ChatGPT、Grok 或 Google 订阅？直接登录即可生图，无需额外购买 API Key。**
 
@@ -130,7 +130,7 @@ pnpm dsh plugin --profile web add ./dazi-image-gen
 
 ### 2. 选择图像模型
 
-重启工作台后，打开侧栏「插件」页面，在「已安装」中进入 **dsh-image-gen** 的设置。默认的「搭子模型」复用模型设置中的小文提供商与凭据，不需要再次输入 API Key 或 Base URL。点击**「获取模型」**，然后选择可用的图像模型（例如 `gpt-image-2.5`）并保存。
+安装并启用后，打开侧栏「插件」页面，在「已安装」中进入 **dsh-image-gen** 的设置。默认的「搭子模型」复用模型设置中的小文提供商与凭据，不需要再次输入 API Key 或 Base URL。点击**「获取模型」**，然后选择可用的图像模型（例如 `gpt-image-2.5`）并保存。
 
 若要使用 ComfyUI、其他云端 Provider 或订阅登录，可展开对应的 Provider 配置，按页面提示填写服务地址或授权信息。
 
@@ -397,7 +397,7 @@ dsh --profile web --dump-config
 pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
-升级后重启对应的 DSH Profile。
+升级后在插件管理器中启用更新后的插件；如果页面没有更新，再重启搭子工作台。
 
 </details>
 

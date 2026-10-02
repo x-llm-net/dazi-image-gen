@@ -69,7 +69,7 @@ Or run this in the profile terminal:
 pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
-After installation, enable the plugin in the plugin manager and restart the workbench. GitHub is only the distribution source; Dazi's native plugin manager handles installation, activation, disabling, and removal.
+After installation, click **Enable now** in the result, then open the plugin settings under **Installed**. GitHub is only the distribution source; Dazi's native plugin manager handles installation, activation, disabling, and removal.
 
 > **Already paying for ChatGPT, Grok, or Google? Just sign in and start generating—no separate API key purchase needed.**
 
@@ -130,7 +130,7 @@ pnpm dsh plugin --profile web add ./dazi-image-gen
 
 ### 2. Choose an image model
 
-After restarting the workbench, open the **Plugins** page from the sidebar and select **dsh-image-gen** under **Installed**. The default **Dazi model** reuses the Xiaowen provider and credentials from Model settings, so you do not need to enter another API key or Base URL. Click **Fetch models**, choose an available image model (for example, `gpt-image-2.5`), and save.
+After installing and enabling the plugin, open the **Plugins** page from the sidebar and select **dsh-image-gen** under **Installed**. The default **Dazi model** reuses the Xiaowen provider and credentials from Model settings, so you do not need to enter another API key or Base URL. Click **Fetch models**, choose an available image model (for example, `gpt-image-2.5`), and save.
 
 To use ComfyUI, another cloud provider, or a subscription login, expand the corresponding provider settings and follow the prompts there.
 
@@ -397,7 +397,7 @@ No. Deleting a gallery record does not modify the original chat message. You may
 pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
-Restart the corresponding DSH Profile after upgrading.
+Enable the updated plugin in the plugin manager. If the page does not update, restart the Dazi workbench.
 
 </details>
 
