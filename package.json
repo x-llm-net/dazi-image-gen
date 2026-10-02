@@ -1,17 +1,17 @@
 {
   "name": "dsh-image-gen",
-  "version": "0.8.5",
-  "description": "Bring ChatGPT-like image generation to DeepSeek Harness — Gemini, OpenAI, Seedream, DashScope, local ComfyUI & more.",
+  "version": "0.8.5-dazi.1",
+  "description": "Dazi fork of dsh-image-gen with native workbench provider binding.",
   "type": "module",
-  "author": "shanliuling",
+  "author": "x-llm-net",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shanliuling/dsh-image-gen.git"
+    "url": "git+https://github.com/x-llm-net/dazi-image-gen.git"
   },
   "bugs": {
-    "url": "https://github.com/shanliuling/dsh-image-gen/issues"
+    "url": "https://github.com/x-llm-net/dazi-image-gen/issues"
   },
-  "homepage": "https://github.com/shanliuling/dsh-image-gen#readme",
+  "homepage": "https://github.com/x-llm-net/dazi-image-gen#readme",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
   "exports": {

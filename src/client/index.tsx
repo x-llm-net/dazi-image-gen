@@ -86,6 +86,7 @@ if (typeof __CANVAS_BUILD_TS__ !== 'undefined') {
 type Provider = ImageProvider
 interface ImageSettings {
   provider?: Provider
+  workbenchProvider?: string
   googleModel?: string
   googleEndpoint?: string
   openaiBaseURL?: string
@@ -186,6 +187,8 @@ const DICT = {
     description: '配置各 Provider 的 Key 与模型，并选择默认 Provider。',
     defaultProvider: '默认 Provider',
     defaultProviderHint: 'Agent 生图默认使用；Studio 与工具调用可临时指定其他 Provider。',
+    workbenchProviderHint: '使用搭子已配置的模型提供商，不需要再次填写 Base URL 或 API Key。点击“获取模型”读取该提供商支持的模型。',
+    workbenchBadge: '搭子模型',
     settingsReadOnly: '设置由配置文件提供，只读；如需修改请编辑对应的配置来源。',
     providerGoogle: 'Google Gemini',
     providerOpenAI: 'OpenAI',
@@ -335,6 +338,8 @@ const DICT = {
     description: 'Configure each provider key and model, then pick the default provider.',
     defaultProvider: 'Default provider',
     defaultProviderHint: 'Used by the Agent by default; the Studio and tool calls can switch per call.',
+    workbenchProviderHint: 'Uses the model provider already configured in Dazi. No separate Base URL or API key is needed. Use “Fetch models” to read the models exposed by that provider.',
+    workbenchBadge: 'Dazi model',
     settingsReadOnly: 'Settings come from a profile file and are read-only; edit that source to change them.',
     providerGoogle: 'Google Gemini',
     providerOpenAI: 'OpenAI',
@@ -1518,7 +1523,8 @@ export function ImageGenerationSettingsCard(props: SettingsCardProps) {
           }
         }
         await saveSetting(modelFieldOf(provider), row.model)
-        await saveSetting(baseURLFieldOf(provider), row.baseURL)
+        const workbenchBound = provider === 'openai-compat' && (snapshot.value?.workbenchProvider?.trim() ?? '').length > 0
+        if (!workbenchBound) await saveSetting(baseURLFieldOf(provider), row.baseURL)
         if (provider === 'openai-compat') {
           await saveSetting('openaiCompatEditFormat', row.editFormat)
           await saveSetting('openaiCompatEditExtra', editExtra)
@@ -1528,7 +1534,7 @@ export function ImageGenerationSettingsCard(props: SettingsCardProps) {
           await saveSetting('seedreamWatermark', row.watermark)
           await saveSetting('seedreamBackground', row.background)
         }
-        if (row.keyInput.trim().length > 0) {
+        if (row.keyInput.trim().length > 0 && !workbenchBound) {
           const keyRef = cloudCredentialRef(provider)
           if (keyRef === undefined) throw new Error(t('comfyuiNoKey'))
           if (!credentialsAvailable()) throw new Error(t('credentialsUnavailable'))
@@ -1551,6 +1557,7 @@ export function ImageGenerationSettingsCard(props: SettingsCardProps) {
   /** These actions use host settings, so drafts must be saved before making a request. */
   const providerActionBlockMessage = (provider: Provider): string | undefined => {
     const row = rows[provider]
+    if (provider === 'openai-compat' && (snapshot.value?.workbenchProvider?.trim() ?? '').length > 0) return undefined
     if (row.keyInput.trim().length > 0) return t('saveKeyFirst')
     if (isSubscriptionProvider(provider)) return undefined
     const address = row.baseURL.trim()
@@ -1652,6 +1659,9 @@ export function ImageGenerationSettingsCard(props: SettingsCardProps) {
 
   const badgeOf = (provider: Provider): { text: string; className: string } => {
     if (provider === 'comfyui') return { text: t('comfyuiNoKey'), className: 'dsh-ig-badge dsh-ig-badge-neutral' }
+    if (provider === 'openai-compat' && (snapshot.value?.workbenchProvider?.trim() ?? '').length > 0) {
+      return { text: t('workbenchBadge'), className: 'dsh-ig-badge dsh-ig-badge-ok' }
+    }
     if (isSubscriptionProvider(provider)) {
       const status = subStatus[provider].state
       if (status === 'logged-in') return { text: t('subBadgeLoggedIn'), className: 'dsh-ig-badge dsh-ig-badge-ok' }
@@ -1749,13 +1759,19 @@ export function ImageGenerationSettingsCard(props: SettingsCardProps) {
 
   const renderCloudBody = (provider: CloudImageProvider) => {
     const row = rows[provider]
+    const workbenchBound = provider === 'openai-compat' && (snapshot.value?.workbenchProvider?.trim() ?? '').length > 0
     const keyRef = cloudCredentialRef(provider) ?? ''
     const keyReadOnly = row.keyInfo?.writable === false
     const keyUnavailable = !credentialsAvailable()
     return (
       <div className="dsh-ig-provider-body">
         <form onSubmit={(event) => { event.preventDefault(); void saveProviderRow(provider) }}>
-          <label className="dsh-ig-field">
+          {workbenchBound ? (
+            <div className="dsh-ig-field">
+              <span className="dsh-ig-label">{t('workbenchBadge')}</span>
+              <span className="dsh-ig-hint">{t('workbenchProviderHint')}</span>
+            </div>
+          ) : <label className="dsh-ig-field">
             <span className="dsh-ig-label">{t('apiKeyLabel', { provider: providerLabels[provider] })}</span>
             <input
               className="dsh-ig-input"
@@ -1771,8 +1787,8 @@ export function ImageGenerationSettingsCard(props: SettingsCardProps) {
                 : keyReadOnly ? t('keyReadOnly', { source: row.keyInfo?.source ?? '' })
                 : t('apiKeyHint', { key: keyRef })}
             </span>
-          </label>
-          <label className="dsh-ig-field">
+          </label>}
+          {!workbenchBound ? <label className="dsh-ig-field">
             <span className="dsh-ig-label">{t('endpoint')}</span>
             <div className="dsh-ig-input-group">
               <input className="dsh-ig-input" type="url" value={row.baseURL} onChange={event => { updateRow(provider, { baseURL: event.target.value }) }} required disabled={!snapshot.writable} />
@@ -1781,22 +1797,37 @@ export function ImageGenerationSettingsCard(props: SettingsCardProps) {
               ) : null}
             </div>
             <span className="dsh-ig-hint">{t(CLOUD_HINT_KEYS[provider])}</span>
-          </label>
+          </label> : null}
           <label className="dsh-ig-field">
             <span className="dsh-ig-label">{t('model')}</span>
             {modelPullSupported(provider) ? (
               <div className="dsh-ig-input-group">
-                <input
-                  className="dsh-ig-input"
-                  value={row.model}
-                  onChange={event => { updateRow(provider, { model: event.target.value }) }}
-                  list={`dsh-ig-${provider}-model-options`}
-                  required={provider !== 'openai-compat'}
-                  disabled={!snapshot.writable}
-                />
-                <datalist id={`dsh-ig-${provider}-model-options`}>
-                  {row.modelOptions.map(id => <option key={id} value={id} />)}
-                </datalist>
+                {workbenchBound ? (
+                  <select
+                    className="dsh-ig-input"
+                    value={row.model}
+                    onChange={event => { updateRow(provider, { model: event.target.value }) }}
+                    required
+                    disabled={!snapshot.writable}
+                  >
+                    {!row.modelOptions.includes(row.model) ? <option value={row.model}>{row.model}</option> : null}
+                    {row.modelOptions.map(id => <option key={id} value={id}>{id}</option>)}
+                  </select>
+                ) : (
+                  <>
+                    <input
+                      className="dsh-ig-input"
+                      value={row.model}
+                      onChange={event => { updateRow(provider, { model: event.target.value }) }}
+                      list={`dsh-ig-${provider}-model-options`}
+                      required={provider !== 'openai-compat'}
+                      disabled={!snapshot.writable}
+                    />
+                    <datalist id={`dsh-ig-${provider}-model-options`}>
+                      {row.modelOptions.map(id => <option key={id} value={id} />)}
+                    </datalist>
+                  </>
+                )}
                 <button
                   type="button"
                   className="dsh-ig-btn-secondary"
@@ -1892,7 +1923,7 @@ export function ImageGenerationSettingsCard(props: SettingsCardProps) {
             <p className={`dsh-ig-status${row.messageIsError ? ' dsh-ig-status-error' : ''}`} role="status">{row.message || testResultText(row.testResult)}</p>
             <span className="dsh-ig-row-buttons">
               <button type="button" className="dsh-ig-btn-secondary" disabled={row.testing || row.saving} onClick={() => { void testConnection(provider) }}>{row.testing ? t('testing') : t('testConnection')}</button>
-              {row.keyStatus === 'configured' && !keyReadOnly ? (
+              {row.keyStatus === 'configured' && !keyReadOnly && !workbenchBound ? (
                 <button type="button" className="dsh-ig-btn-secondary dsh-ig-btn-danger" disabled={row.saving} onClick={() => { void clearProviderKey(provider) }}>{t('clearKey')}</button>
               ) : null}
               <button className="dsh-ig-save" type="submit" disabled={row.saving || row.testing || row.fetchingModels || !snapshot.writable}>{row.saving ? t('saving') : t('save')}</button>

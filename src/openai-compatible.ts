@@ -171,7 +171,7 @@ export async function editOpenAICompatibleImage(input: {
 async function parseImageResponse(
   response: Response,
   provider: string,
-  input: { maxBytes: number; signal: AbortSignal; apiKey?: string },
+  input: { maxBytes: number; signal: AbortSignal; apiKey?: string; baseURL?: string },
 ): Promise<GeneratedCompatibleImage> {
   const text = await readBoundedText(response, Math.ceil(input.maxBytes * 1.4) + ERROR_LIMIT)
   if (!response.ok) throw new Error(`${provider} image request failed (${response.status}): ${redactSecrets(text, input.apiKey).slice(0, ERROR_LIMIT)}`)
@@ -218,7 +218,7 @@ function firstImage(value: unknown): { b64_json?: string; url?: string; mime_typ
 async function downloadImage(
   url: string | undefined,
   provider: string,
-  input: { maxBytes: number; signal: AbortSignal; apiKey?: string },
+  input: { maxBytes: number; signal: AbortSignal; apiKey?: string; baseURL?: string },
 ): Promise<GeneratedCompatibleImage> {
   if (url === undefined) throw new Error(`${provider} image request returned no image data`)
   if (url.startsWith('data:')) {
@@ -227,9 +227,19 @@ async function downloadImage(
     const data = decodeBase64(parsed.base64, provider)
     return { data, mediaType: detectImageMediaType(data) ?? imageMediaType(parsed.mediaType) ?? 'image/png' }
   }
-  let response = await fetch(url, {
-    redirect: 'follow', signal: input.signal,
-    ...(input.apiKey === undefined ? {} : { headers: { authorization: `Bearer ${input.apiKey}` } }),
+  const target = new URL(url)
+  const service = input.baseURL === undefined ? undefined : new URL(input.baseURL)
+  const sameOrigin = service !== undefined && target.origin === service.origin
+  // Provider responses often contain public CDN URLs. Never send the model
+  // provider key to another origin, and do not follow an authenticated
+  // redirect away from the provider origin.
+  // Older callers did not pass `baseURL`; retain their authenticated retry
+  // behavior while all current requests provide the provider endpoint. When
+  // the endpoint is known, credentials are limited to that origin.
+  const authenticated = input.apiKey !== undefined && (service === undefined || sameOrigin)
+  let response = await fetch(target, {
+    redirect: authenticated ? 'error' : 'follow', signal: input.signal,
+    ...(authenticated ? { headers: { authorization: `Bearer ${input.apiKey}` } } : {}),
   })
   // Some relay CDNs (e.g. Agnes AI, SenseNova's OSS) reject image downloads
   // that carry an Authorization header (WAF rules), even though the URL is
@@ -237,8 +247,8 @@ async function downloadImage(
   // Retrying without the header is safe (downgraded request, no secret sent)
   // and only ever turns a guaranteed failure into a possible success: URLs
   // that genuinely need auth would have failed anyway.
-  if (!response.ok && input.apiKey !== undefined) {
-    response = await fetch(url, { redirect: 'follow', signal: input.signal })
+  if (!response.ok && authenticated) {
+    response = await fetch(target, { redirect: 'follow', signal: input.signal })
   }
   if (!response.ok) throw new Error(`${provider} image download failed (${response.status})`)
   const data = await readBoundedBytes(response, input.maxBytes)

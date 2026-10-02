@@ -15,9 +15,9 @@
 <p>
   <a href="https://www.npmjs.com/package/dsh-image-gen"><img src="https://img.shields.io/npm/v/dsh-image-gen?style=flat-square&color=4f6ef7" alt="npm version" /></a>
   <a href="https://www.npmjs.com/package/dsh-image-gen"><img src="https://img.shields.io/npm/dm/dsh-image-gen?style=flat-square&color=10b981" alt="npm downloads" /></a>
-  <a href="https://github.com/shanliuling/dsh-image-gen/actions/workflows/ci.yml"><img src="https://github.com/shanliuling/dsh-image-gen/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://dsh-insights.com/p/shanliuling/dsh-image-gen"><img src="https://dsh-insights.com/badge/shanliuling/dsh-image-gen.svg" alt="DSH Insights health" /></a>
-  <a href="https://github.com/shanliuling/dsh-image-gen/stargazers"><img src="https://img.shields.io/github/stars/shanliuling/dsh-image-gen?style=flat-square" alt="GitHub stars" /></a>
+  <a href="https://github.com/x-llm-net/dazi-image-gen/actions/workflows/ci.yml"><img src="https://github.com/x-llm-net/dazi-image-gen/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://dsh-insights.com/p/x-llm-net/dazi-image-gen"><img src="https://dsh-insights.com/badge/x-llm-net/dazi-image-gen.svg" alt="DSH Insights health" /></a>
+  <a href="https://github.com/x-llm-net/dazi-image-gen/stargazers"><img src="https://img.shields.io/github/stars/x-llm-net/dazi-image-gen?style=flat-square" alt="GitHub stars" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-f5c542?style=flat-square" alt="License: Apache-2.0" /></a>
   <a href="https://linux.do/"><img src="https://img.shields.io/badge/LINUX%20DO-社区友链-555?style=flat-square" alt="LINUX DO" /></a>
 </p>
@@ -51,12 +51,32 @@
 
 支持主流云端图像模型与本地私有化工作流，既可使用 BYOK（自带 Key），也支持通过订阅账号直接使用，生成结果支持按工作区隔离存储。
 
+### 搭子适配版说明
+
+本仓库是搭子工作台维护的 fork。为了兼容 DeepSeek Harness 的 bundle、路由和已有配置，npm 包名仍保留为 `dsh-image-gen`；搭子适配只增加了一个原生 Provider 绑定层，不会复制模型 API Key，也不会替换 Harness 的 Agent、权限或文件工具。
+
+在搭子中安装后，图像生成设置会显示“搭子模型”。它直接读取「设置 → 模型」里已配置的提供商和模型列表，因此只需要选择图像模型，不需要再次填写 Base URL 或 API Key。默认绑定 `xiaowen-runtime`，默认图像模型为 `gpt-image-2.5`。
+
+普通用户打开搭子侧栏的「插件」页面，点击「添加插件」，粘贴下面的 GitHub 地址：
+
+```text
+git+https://github.com/x-llm-net/dazi-image-gen.git
+```
+
+也可以在工作台 profile 的终端执行：
+
+```bash
+pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
+```
+
+安装完成后，在插件管理器中启用它并重启工作台。GitHub 仓库只是插件的发布源，不会自动安装；安装、启用、禁用和卸载都由搭子的原生插件管理器负责。
+
 > **已有 ChatGPT、Grok 或 Google 订阅？直接登录即可生图，无需额外购买 API Key。**
 
 支持：Gemini · OpenAI / Compatible · Seedream · DashScope · Grok Imagine · GLM-Image · 本地 ComfyUI
 
 ```bash
-pnpm dsh plugin --profile web add dsh-image-gen@latest
+pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
 > **版本更新提示：** 本次版本变化较大，老用户请更新至最新版本。
@@ -81,45 +101,38 @@ pnpm dsh plugin --profile web add dsh-image-gen@latest
 
 ### 1. 安装插件
 
-环境要求：DeepSeek Harness 稳定版本，Node.js `^22.19.0` 或 `>= 24.0.0`。
+环境要求：搭子工作台（基于 DeepSeek Harness），Node.js `^22.19.0` 或 `>= 24.0.0`。
 
-在你的 DeepSeek Harness 项目根目录下运行：
+在搭子的 profile 终端运行：
 
 ```bash
-pnpm dsh plugin --profile web add dsh-image-gen@latest
+pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
-> 💬 **极客提示**：你也可以直接把这句话发送给 DSH 对话中的 Agent：<br />
-> `帮我安装生图插件，在终端执行：pnpm dsh plugin --profile web add dsh-image-gen@latest`
+插件管理器可能会要求确认运行插件的构建脚本；这是 GitHub 源码包安装时的 pnpm 安全提示，确认后才能完成首次构建。
 
 <details>
 <summary><strong>其他安装方式（全局 / GitHub 直装 / 本地调试）</strong></summary>
 
 ```bash
 # 若已将 dsh 安装为系统全局命令：
-dsh plugin --profile web add dsh-image-gen@latest
+dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 
 # 从 GitHub 仓库直接安装最新代码：
-pnpm dsh plugin --profile web add git+https://github.com/shanliuling/dsh-image-gen.git
+pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 
 # 本地克隆源码开发安装：
-git clone https://github.com/shanliuling/dsh-image-gen.git
-pnpm dsh plugin --profile web add ./dsh-image-gen
+git clone https://github.com/x-llm-net/dazi-image-gen.git
+pnpm dsh plugin --profile web add ./dazi-image-gen
 ```
 
 </details>
 
-### 2. 配置 Provider
+### 2. 选择图像模型
 
-重启 DSH 后进入：
+重启工作台后，打开侧栏「插件」页面，在「已安装」中进入 **dsh-image-gen** 的设置。默认的「搭子模型」复用模型设置中的小文提供商与凭据，不需要再次输入 API Key 或 Base URL。点击**「获取模型」**，然后选择可用的图像模型（例如 `gpt-image-2.5`）并保存。
 
-**设置 → 插件 → 图像生成**
-
-> DSH 0.1.5 及更早版本的入口为「设置 → 插件 → 插件配置 → 图像生成」，插件已同时兼容两种入口。
-
-选择 Provider，填写自己的 API Key，并按需调整模型、Endpoint / Base URL 与工作区保存选项。填好 Key 后可点击**「测试连接」**验证可用性，或点击**「拉取模型」**一键获取该厂商支持的全部生图模型，无需手动查文档。使用 ComfyUI 时，请填写 DSH Host 可访问的服务地址，并导入 **API Format Workflow JSON**。
-
-已有 ChatGPT、Grok 或 Google 订阅？无需填写 API Key：展开对应的订阅 Provider 行，点击**「登录」**并在浏览器完成授权，即可直接开始文生图与图生图。
+若要使用 ComfyUI、其他云端 Provider 或订阅登录，可展开对应的 Provider 配置，按页面提示填写服务地址或授权信息。
 
 ### 3. 开始创作
 
@@ -344,15 +357,15 @@ pnpm dsh plugin --profile web add ./dsh-image-gen
 <details>
 <summary><strong>安装后找不到“图像生成”设置怎么办？</strong></summary>
 
-设置入口随 DSH 版本不同：0.1.6 及以上位于「设置 → 插件 → 图像生成」，0.1.5 及更早位于「设置 → 插件 → 插件配置 → 图像生成」。
+打开侧栏「插件」页面，在「已安装」中选择 dsh-image-gen。较早的 Harness 版本可能将插件设置放在「设置 → 插件配置」中。
 
-若两处都没有，先完全重启当前 DSH Profile，再检查插件配置：
+若页面中仍没有该插件，先完全重启当前搭子工作台，再检查插件配置：
 
 ```bash
 dsh --profile web --dump-config
 ```
 
-如果输出中没有 `dsh-image-gen`，请重新执行安装命令。提交 Issue 时请附 DSH 版本、插件版本和错误日志，不要上传 API Key。
+如果输出中没有 `dsh-image-gen`，请重新执行安装命令。提交 Issue 时请附搭子版本、插件版本和错误日志，不要上传 API Key。
 
 </details>
 
@@ -381,7 +394,7 @@ dsh --profile web --dump-config
 <summary><strong>如何升级？</strong></summary>
 
 ```bash
-pnpm dsh plugin --profile web add dsh-image-gen@latest
+pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
 升级后重启对应的 DSH Profile。
@@ -393,8 +406,8 @@ pnpm dsh plugin --profile web add dsh-image-gen@latest
 ## 本地开发
 
 ```bash
-git clone https://github.com/shanliuling/dsh-image-gen.git
-cd dsh-image-gen
+git clone https://github.com/x-llm-net/dazi-image-gen.git
+cd dazi-image-gen
 
 pnpm install
 pnpm run typecheck
@@ -403,7 +416,7 @@ pnpm run build
 pnpm run pack:check
 ```
 
-欢迎通过 [Issues](https://github.com/shanliuling/dsh-image-gen/issues) 反馈问题，或阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 后提交 Pull Request。
+欢迎通过 [Issues](https://github.com/x-llm-net/dazi-image-gen/issues) 反馈问题，或阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 后提交 Pull Request。
 
 ## License
 
@@ -413,6 +426,6 @@ pnpm run pack:check
 
 如果 `dsh-image-gen` 对你的工作流有所帮助，欢迎在 GitHub 点亮一颗 ⭐ **Star** 支持持续维护。
 
-**[查看 Releases](https://github.com/shanliuling/dsh-image-gen/releases) · [提交 Issue](https://github.com/shanliuling/dsh-image-gen/issues) · [参与贡献](CONTRIBUTING.md)**
+**[查看 Releases](https://github.com/x-llm-net/dazi-image-gen/releases) · [提交 Issue](https://github.com/x-llm-net/dazi-image-gen/issues) · [参与贡献](CONTRIBUTING.md)**
 
 </div>

@@ -112,7 +112,7 @@ describe('OpenAI-compatible images', () => {
   // the authenticated download gets a 401/403, the retry without the header succeeds.
   it('retries image download without the auth header after 401', async () => {
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [{ url: 'https://cdn.example/result' }] }), { headers: { 'content-type': 'application/json' } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [{ url: 'https://relay.example/result' }] }), { headers: { 'content-type': 'application/json' } }))
       .mockResolvedValueOnce(new Response(null, { status: 401 }))
       .mockResolvedValueOnce(new Response(new Uint8Array([3, 4]), { headers: { 'content-type': 'image/png' } }))
     vi.stubGlobal('fetch', fetchMock)
@@ -123,9 +123,20 @@ describe('OpenAI-compatible images', () => {
     expect(retryCall[1]?.headers).toBeUndefined()
   })
 
-  it('retries image download without the auth header after 403', async () => {
+  it('does not send the provider key to an external image CDN', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({ data: [{ url: 'https://cdn.example/result' }] }), { headers: { 'content-type': 'application/json' } }))
+      .mockResolvedValueOnce(new Response(new Uint8Array([4, 5]), { headers: { 'content-type': 'image/png' } }))
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(generateOpenAICompatibleImage({ provider: 'openai-compat', apiKey: 'secret-key', baseURL: 'https://relay.example/v1', model: 'image-model', prompt: 'a cat', size: '1024x1024', maxBytes: 1024, signal })).resolves.toEqual({ data: new Uint8Array([4, 5]), mediaType: 'image/png' })
+    const downloadCall = fetchMock.mock.calls[1] as unknown as [string, RequestInit]
+    expect(String(downloadCall[0])).toBe('https://cdn.example/result')
+    expect(downloadCall[1]?.headers).toBeUndefined()
+  })
+
+  it('retries image download without the auth header after 403', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [{ url: 'https://relay.example/result' }] }), { headers: { 'content-type': 'application/json' } }))
       .mockResolvedValueOnce(new Response(null, { status: 403 }))
       .mockResolvedValueOnce(new Response(new Uint8Array([5]), { headers: { 'content-type': 'image/png' } }))
     vi.stubGlobal('fetch', fetchMock)
@@ -138,7 +149,7 @@ describe('OpenAI-compatible images', () => {
   // A still-failing retry surfaces the same error as before.
   it('retries a 500 download once without the auth header before failing', async () => {
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [{ url: 'https://cdn.example/result' }] }), { headers: { 'content-type': 'application/json' } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [{ url: 'https://relay.example/result' }] }), { headers: { 'content-type': 'application/json' } }))
       .mockResolvedValueOnce(new Response(null, { status: 500 }))
       .mockResolvedValueOnce(new Response(null, { status: 500 }))
     vi.stubGlobal('fetch', fetchMock)
@@ -152,7 +163,7 @@ describe('OpenAI-compatible images', () => {
   // Authorization header attached (#41).
   it('retries image download without the auth header after 400', async () => {
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [{ url: 'https://sensenova-cdn.example/result' }] }), { headers: { 'content-type': 'application/json' } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [{ url: 'https://token.sensenova.cn/result' }] }), { headers: { 'content-type': 'application/json' } }))
       .mockResolvedValueOnce(new Response(null, { status: 400 }))
       .mockResolvedValueOnce(new Response(new Uint8Array([9]), { headers: { 'content-type': 'image/png' } }))
     vi.stubGlobal('fetch', fetchMock)
@@ -246,7 +257,7 @@ describe('OpenAI-compatible images', () => {
 
   it('gives up when the unauthenticated retry also fails', async () => {
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [{ url: 'https://cdn.example/result' }] }), { headers: { 'content-type': 'application/json' } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [{ url: 'https://relay.example/result' }] }), { headers: { 'content-type': 'application/json' } }))
       .mockResolvedValueOnce(new Response(null, { status: 401 }))
       .mockResolvedValueOnce(new Response(null, { status: 401 }))
     vi.stubGlobal('fetch', fetchMock)

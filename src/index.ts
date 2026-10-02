@@ -28,6 +28,7 @@ import { serveStudio } from './studio-route.js'
 import { serveTestConnection } from './test-route.js'
 import { deleteImageFromWorkspace, getDshWorkspaceRoots, getDshWorkspacesFull, saveImageToWorkspace } from './workspace-save.js'
 import { xaiToolParameters } from './xai-params.js'
+import { bindWorkbenchProvider, resolveWorkbenchProvider } from './workbench-provider.js'
 
 export { Config } from './config.js'
 export { IMAGE_ROUTE, DELETE_ROUTE, SAVE_WORKSPACE_ROUTE, imageAttachmentFromMeta } from './image-route.js'
@@ -38,7 +39,7 @@ export { TEST_CONNECTION_ROUTE } from './shared.js'
 export { CANVAS_STATE_ROUTE } from './shared.js'
 
 export const name = 'dsh-image-gen'
-export const inject = ['tools', 'attachments', 'credentials', 'webServer']
+export const inject = ['tools', 'attachments', 'credentials', 'webServer', 'settings']
 
 interface GeneratedValue {
   attachment: ImageAttachmentRef
@@ -100,7 +101,19 @@ export function apply(ctx: Context, config: Config = {}): void {
   // Migration on every read: relay configs saved under the old single OpenAI
   // slot keep moving to the dedicated compat row until the persisted copy is
   // rewritten, so both rows coexist after any upgrade.
-  let current: () => Config = () => migrateOpenAICompatConfig(plainConfig(config))
+  let sourceConfig: () => Config = () => migrateOpenAICompatConfig(plainConfig(config))
+  const current: () => Config = () => bindWorkbenchProvider(ctx, sourceConfig()) as Config
+  ctx.inject(['systemPrompt'], promptCtx => {
+    promptCtx.systemPrompt.context({
+      name: 'dsh-image-gen:workbench-provider',
+      order: 61,
+      text: () => {
+        const bound = current()
+        if (resolveProvider(bound).provider !== 'openai-compat' || resolveWorkbenchProvider(ctx, bound.workbenchProvider) === undefined) return ''
+        return `Image generation uses the configured 搭子 model provider through its OpenAI-compatible image API, model ${bound.openaiCompatModel || 'gpt-image-2.5'}. Use generate_image or edit_image without asking for another API key or subscription login.`
+      },
+    })
+  })
   const knownWorkspaceRoots = new Set<string>()
   // Host-side mirror of the workbench infinite canvas: fed by the canvas-state
   // route, read by the canvas tools, the edit_image canvas_selection source,
@@ -111,8 +124,8 @@ export function apply(ctx: Context, config: Config = {}): void {
   const subscriptionManager = new SubscriptionManager(ctx)
   registerSubscriptionRoutes(ctx, subscriptionManager)
 
-  installImageSettings(ctx, current(), {
-    setSource: source => { current = () => migrateOpenAICompatConfig(plainConfig(source())) },
+  installImageSettings(ctx, sourceConfig(), {
+    setSource: source => { sourceConfig = () => migrateOpenAICompatConfig(plainConfig(source())) },
     onChange: () => {},
   })
   ctx.effect(() => ctx.webServer.register({
@@ -163,7 +176,7 @@ export function apply(ctx: Context, config: Config = {}): void {
   ctx.effect(() => ctx.webServer.register({
     kind: 'exact', path: TEST_CONNECTION_ROUTE,
     handler: (req, res) => serveTestConnection(req, res, {
-      resolveKey: provider => resolveApiKey(ctx, provider),
+      resolveKey: provider => resolveApiKey(ctx, provider, current()),
       config: () => current(),
       subscriptionManager,
     }),
@@ -257,7 +270,7 @@ export function apply(ctx: Context, config: Config = {}): void {
       })
       return saveGenerated(ctx, generated, active.provider, active.model, 'subscription', current(), exec, knownWorkspaceRoots)
     }
-    const credential = await requireApiKey(ctx, active.provider, 'generate_image')
+    const credential = await requireApiKey(ctx, active.provider, 'generate_image', current())
     if (active.provider === 'google') {
       const aspectRatio = (args.aspect_ratio ?? active.aspectRatio) as AspectRatio
       const imageSize = (args.image_size ?? active.imageSize) as ImageSize
@@ -452,7 +465,7 @@ export function apply(ctx: Context, config: Config = {}): void {
         return saveGenerated(ctx, generated, active.provider, active.model, 'subscription edit', current(), exec, knownWorkspaceRoots)
       }
 
-      const credential = await requireApiKey(ctx, active.provider, 'edit_image')
+      const credential = await requireApiKey(ctx, active.provider, 'edit_image', current())
       if (active.provider === 'google') {
         const aspectRatio = (args.aspect_ratio ?? active.aspectRatio) as AspectRatio
         const imageSize = (args.image_size ?? active.imageSize) as ImageSize

@@ -84,6 +84,8 @@ export type ImageSize = typeof IMAGE_SIZES[number]
 /** Bundle configuration from the profile patch and the Web settings page. */
 export interface Config {
   provider?: ImageProvider
+  /** Native Harness provider id used when the OpenAI-compatible row is bound to the workbench. */
+  workbenchProvider?: string
   googleModel?: string
   googleEndpoint?: string
   openaiBaseURL?: string
@@ -178,6 +180,7 @@ function volatile<T extends z>(schema: T): T {
  */
 export const Config = z.object({
   provider: volatile(z.union(IMAGE_PROVIDERS).default('google')),
+  workbenchProvider: volatile(z.string().default('')),
   googleModel: volatile(z.string().default(DEFAULT_GOOGLE_MODEL)),
   googleEndpoint: volatile(z.string().default(DEFAULT_GOOGLE_ENDPOINT)),
   openaiBaseURL: volatile(z.string().default(DEFAULT_OPENAI_BASE_URL)),

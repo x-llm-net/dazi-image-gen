@@ -2,4 +2,6 @@
     - id: image-gen
       name: dsh-image-gen
       config:
-        provider: google
+        provider: openai-compat
+        workbenchProvider: xiaowen-runtime
+        openaiCompatModel: gpt-image-2.5

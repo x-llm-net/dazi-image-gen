@@ -15,9 +15,9 @@
 <p>
   <a href="https://www.npmjs.com/package/dsh-image-gen"><img src="https://img.shields.io/npm/v/dsh-image-gen?style=flat-square&color=4f6ef7" alt="npm version" /></a>
   <a href="https://www.npmjs.com/package/dsh-image-gen"><img src="https://img.shields.io/npm/dm/dsh-image-gen?style=flat-square&color=10b981" alt="npm downloads" /></a>
-  <a href="https://github.com/shanliuling/dsh-image-gen/actions/workflows/ci.yml"><img src="https://github.com/shanliuling/dsh-image-gen/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://dsh-insights.com/p/shanliuling/dsh-image-gen"><img src="https://dsh-insights.com/badge/shanliuling/dsh-image-gen.svg" alt="DSH Insights health" /></a>
-  <a href="https://github.com/shanliuling/dsh-image-gen/stargazers"><img src="https://img.shields.io/github/stars/shanliuling/dsh-image-gen?style=flat-square" alt="GitHub stars" /></a>
+  <a href="https://github.com/x-llm-net/dazi-image-gen/actions/workflows/ci.yml"><img src="https://github.com/x-llm-net/dazi-image-gen/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://dsh-insights.com/p/x-llm-net/dazi-image-gen"><img src="https://dsh-insights.com/badge/x-llm-net/dazi-image-gen.svg" alt="DSH Insights health" /></a>
+  <a href="https://github.com/x-llm-net/dazi-image-gen/stargazers"><img src="https://img.shields.io/github/stars/x-llm-net/dazi-image-gen?style=flat-square" alt="GitHub stars" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-f5c542?style=flat-square" alt="License: Apache-2.0" /></a>
   <a href="https://linux.do/"><img src="https://img.shields.io/badge/LINUX%20DO-Community-555?style=flat-square" alt="LINUX DO" /></a>
 </p>
@@ -51,12 +51,32 @@
 
 It supports mainstream cloud image models and private local workflows, works with BYOK (bring your own key) or subscription accounts, and can isolate generated assets by workspace.
 
+### Dazi workbench fork
+
+This repository is the Dazi workbench fork. The npm package name remains `dsh-image-gen` so Harness bundle IDs, routes, and existing settings stay compatible. The Dazi layer only binds the image provider to the native workbench model settings; it does not copy API keys or replace the Harness Agent, permissions, or file tools.
+
+After installation in Dazi, the image settings card shows **Dazi model**. It reads the provider and model list already configured under **Settings → Models**, so the image plugin only needs a model selection—no second Base URL or API key. The default provider id is `xiaowen-runtime`, with `gpt-image-2.5` as the default image model.
+
+For normal users, open the **Plugins** page from Dazi's sidebar, choose **Add plugin**, and paste:
+
+```text
+git+https://github.com/x-llm-net/dazi-image-gen.git
+```
+
+Or run this in the profile terminal:
+
+```bash
+pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
+```
+
+After installation, enable the plugin in the plugin manager and restart the workbench. GitHub is only the distribution source; Dazi's native plugin manager handles installation, activation, disabling, and removal.
+
 > **Already paying for ChatGPT, Grok, or Google? Just sign in and start generating—no separate API key purchase needed.**
 
 Supports: Gemini · OpenAI / Compatible · Seedream · DashScope · Grok Imagine · GLM-Image · Local ComfyUI
 
 ```bash
-pnpm dsh plugin --profile web add dsh-image-gen@latest
+pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
 > **Update notice:** This release includes major changes. Existing users should update to the latest version.
@@ -81,45 +101,38 @@ pnpm dsh plugin --profile web add dsh-image-gen@latest
 
 ### 1. Install the plugin
 
-Requirements: DeepSeek Harness stable version, Node.js `^22.19.0` or `>= 24.0.0`.
+Requirements: Dazi workbench (based on DeepSeek Harness), Node.js `^22.19.0` or `>= 24.0.0`.
 
-Run this command from your DeepSeek Harness project root:
+Run this command in the Dazi profile terminal:
 
 ```bash
-pnpm dsh plugin --profile web add dsh-image-gen@latest
+pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
-> 💬 **Power-user tip:** You can also send this directly to the Agent in a DSH chat:<br />
-> `Install the image generation plugin by running this command in the terminal: pnpm dsh plugin --profile web add dsh-image-gen@latest`
+The plugin manager may ask you to approve the package build script. This is pnpm's safety prompt for building a GitHub source package and is required for the first install.
 
 <details>
 <summary><strong>Alternative installation methods (global / GitHub / local development)</strong></summary>
 
 ```bash
 # If dsh is installed globally:
-dsh plugin --profile web add dsh-image-gen@latest
+dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 
 # Install the latest source directly from GitHub:
-pnpm dsh plugin --profile web add git+https://github.com/shanliuling/dsh-image-gen.git
+pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 
 # Clone the repository and install it for local development:
-git clone https://github.com/shanliuling/dsh-image-gen.git
-pnpm dsh plugin --profile web add ./dsh-image-gen
+git clone https://github.com/x-llm-net/dazi-image-gen.git
+pnpm dsh plugin --profile web add ./dazi-image-gen
 ```
 
 </details>
 
-### 2. Configure a Provider
+### 2. Choose an image model
 
-After restarting DSH, open:
+After restarting the workbench, open the **Plugins** page from the sidebar and select **dsh-image-gen** under **Installed**. The default **Dazi model** reuses the Xiaowen provider and credentials from Model settings, so you do not need to enter another API key or Base URL. Click **Fetch models**, choose an available image model (for example, `gpt-image-2.5`), and save.
 
-**Settings → Plugins → Image Generation**
-
-> On DSH 0.1.5 and earlier the entry is **Settings → Plugins → Plugin Configuration → Image Generation**; the same plugin build supports both.
-
-Choose a Provider, enter your API key, and adjust the model, Endpoint / Base URL, and workspace-save options as needed. Once the key is stored, click **Test connection** to verify it, or **Fetch models** to pull every image-capable model the provider offers—no manual lookups needed. For ComfyUI, enter an address reachable by the DSH Host and import an **API Format Workflow JSON** file.
-
-Already paying for ChatGPT, Grok, or Google? No API key needed: expand the matching subscription Provider row, click **Sign in** and complete the authorization in your browser, then start generating (and editing) right away.
+To use ComfyUI, another cloud provider, or a subscription login, expand the corresponding provider settings and follow the prompts there.
 
 ### 3. Start creating
 
@@ -344,7 +357,7 @@ Bring private image generation on your local GPU directly into Agent conversatio
 <details>
 <summary><strong>What should I do if “Image Generation” is missing after installation?</strong></summary>
 
-The settings entry depends on the DSH version: 0.1.6 and newer place it at **Settings → Plugins → Image Generation**, while 0.1.5 and earlier place it at **Settings → Plugins → Plugin Configuration → Image Generation**.
+Open the **Plugins** page from the sidebar and select dsh-image-gen under **Installed**. Older Harness versions may place plugin settings under **Settings → Plugin Configuration**.
 
 If it is missing in both places, fully restart the current DSH Profile, then inspect the plugin configuration:
 
@@ -381,7 +394,7 @@ No. Deleting a gallery record does not modify the original chat message. You may
 <summary><strong>How do I upgrade?</strong></summary>
 
 ```bash
-pnpm dsh plugin --profile web add dsh-image-gen@latest
+pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
 Restart the corresponding DSH Profile after upgrading.
@@ -393,8 +406,8 @@ Restart the corresponding DSH Profile after upgrading.
 ## Local Development
 
 ```bash
-git clone https://github.com/shanliuling/dsh-image-gen.git
-cd dsh-image-gen
+git clone https://github.com/x-llm-net/dazi-image-gen.git
+cd dazi-image-gen
 
 pnpm install
 pnpm run typecheck
@@ -403,7 +416,7 @@ pnpm run build
 pnpm run pack:check
 ```
 
-Feedback is welcome through [Issues](https://github.com/shanliuling/dsh-image-gen/issues). Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a Pull Request.
+Feedback is welcome through [Issues](https://github.com/x-llm-net/dazi-image-gen/issues). Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a Pull Request.
 
 ## License
 
@@ -413,6 +426,6 @@ This project is open source under the [Apache License 2.0](LICENSE).
 
 If `dsh-image-gen` improves your workflow, consider giving the project a ⭐ **Star** to support continued maintenance.
 
-**[View Releases](https://github.com/shanliuling/dsh-image-gen/releases) · [Open an Issue](https://github.com/shanliuling/dsh-image-gen/issues) · [Contribute](CONTRIBUTING.md)**
+**[View Releases](https://github.com/x-llm-net/dazi-image-gen/releases) · [Open an Issue](https://github.com/x-llm-net/dazi-image-gen/issues) · [Contribute](CONTRIBUTING.md)**
 
 </div>
