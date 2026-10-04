@@ -122,7 +122,7 @@ async function landTlItems(editor: Editor, items: readonly TlLandingItem[], isAc
           },
         })
       } catch (error) {
-        console.warn('[dsh-image-gen] canvas landing skipped (attachment unreadable):', item.galleryId, error)
+        console.warn('[dazi-image-gen] canvas landing skipped (attachment unreadable):', item.galleryId, error)
         continue
       }
     }
@@ -255,7 +255,7 @@ export const StudioTlCanvas: FC<{ lang?: 'zh' | 'en' }> = memo(function StudioTl
           editor.updateInstanceState({ isGridMode: true })
           // One console line proves the editor booted inside the webview;
           // useful when the host page swallows render errors.
-          console.info(`[dsh-image-gen] tldraw mounted (instance ${editor.id})`)
+          console.info(`[dazi-image-gen] tldraw mounted (instance ${editor.id})`)
           // tldraw calls onMount after the local document has loaded.
           const stopLanding = registerTlLandingConsumer(items => {
             const generation = getTlLandingGeneration()
@@ -304,6 +304,8 @@ export const StudioTlCanvas: FC<{ lang?: 'zh' | 'en' }> = memo(function StudioTl
   return (
     <div className="dsh-ig-tl-canvas">
       <Tldraw
+        // Keep the persistence key stable so an existing canvas survives the
+        // package rename.
         persistenceKey="dsh-image-gen-workbench-v1"
         sessionId={sessionId}
         components={TL_COMPONENTS}

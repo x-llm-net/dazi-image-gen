@@ -1,5 +1,6 @@
 /** Modern DSH conversation node that keeps image artifacts outside Tool process folding. */
 import type { ImageAttachmentRef, ImageMediaType } from '@deepseek-ai/dsh-attachment'
+import { IMAGE_BATCH_KINDS, IMAGE_RESULT_KINDS } from '../shared.js'
 
 export const IMAGE_RESULT_NODE_KIND = 'dsh-image-result'
 
@@ -143,7 +144,7 @@ function appendResult(
 /** Parse the plugin-owned durable presentation metadata from a Tool result event. */
 export function imageResultFromMeta(value: unknown): ImageResultPresentation | undefined {
   const meta = record(value)
-  if (meta?.kind !== 'dsh-image-gen') return undefined
+  if (typeof meta?.kind !== 'string' || !(IMAGE_RESULT_KINDS as readonly string[]).includes(meta.kind)) return undefined
   const attachment = imageAttachment(meta.attachment)
   if (attachment === undefined) return undefined
   return {
@@ -160,7 +161,7 @@ export function imageResultFromMeta(value: unknown): ImageResultPresentation | u
 /** Parse all successful images from either a single or batch Tool result. */
 export function imageResultsFromMeta(value: unknown): readonly ImageResultPresentation[] {
   const meta = record(value)
-  if (meta?.kind === 'dsh-image-gen-batch' && Array.isArray(meta.images)) {
+  if (typeof meta?.kind === 'string' && (IMAGE_BATCH_KINDS as readonly string[]).includes(meta.kind) && Array.isArray(meta.images)) {
     return meta.images.flatMap(image => {
       const result = imageResultFromMeta(image)
       return result === undefined ? [] : [result]

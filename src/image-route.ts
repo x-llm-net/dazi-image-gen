@@ -2,7 +2,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { ImageAttachmentRef, StoredImageAttachment } from '@deepseek-ai/dsh-attachment'
 import { parseImageAttachmentRef } from './reference-image.js'
-import { IMAGE_ROUTE, DELETE_ROUTE, SAVE_WORKSPACE_ROUTE } from './shared.js'
+import { IMAGE_RESULT_KINDS, IMAGE_ROUTE, DELETE_ROUTE, SAVE_WORKSPACE_ROUTE } from './shared.js'
 import { assertWorkspaceAllowed } from './workspace-save.js'
 
 export { IMAGE_ROUTE, DELETE_ROUTE, SAVE_WORKSPACE_ROUTE } from './shared.js'
@@ -179,7 +179,7 @@ export async function serveSaveWorkspace(
 /** Validate the persisted reference carried by a tool presentation. */
 export function imageAttachmentFromMeta(meta: unknown): ImageAttachmentRef | undefined {
   const value = record(meta)
-  if (value?.kind !== 'dsh-image-gen') return undefined
+  if (typeof value?.kind !== 'string' || !(IMAGE_RESULT_KINDS as readonly string[]).includes(value.kind)) return undefined
   return parseImageAttachmentRef(value.attachment)
 }
 

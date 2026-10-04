@@ -2,25 +2,47 @@
 import type { ImageAttachmentRef, ImageMediaType } from '@deepseek-ai/dsh-attachment'
 
 /** Browser route used by the generated-image card. */
-export const IMAGE_ROUTE = '/plugins/dsh-image-gen/image'
+export const IMAGE_ROUTE = '/plugins/dazi-image-gen/image'
 /** Browser route that uploads user-picked images as DSH attachments. */
-export const IMPORT_ROUTE = '/plugins/dsh-image-gen/import'
+export const IMPORT_ROUTE = '/plugins/dazi-image-gen/import'
 /** Browser route used for deleting generated images and workspace files. */
-export const DELETE_ROUTE = '/plugins/dsh-image-gen/delete'
+export const DELETE_ROUTE = '/plugins/dazi-image-gen/delete'
 /** Same-origin route used by the browser image workbench. */
-export const STUDIO_ROUTE = '/plugins/dsh-image-gen/studio'
+export const STUDIO_ROUTE = '/plugins/dazi-image-gen/studio'
 /** Same-origin route for built-in prompt inspiration metadata and images. */
-export const INSPIRATION_ROUTE = '/plugins/dsh-image-gen/inspiration'
+export const INSPIRATION_ROUTE = '/plugins/dazi-image-gen/inspiration'
 /** Browser route used for saving generated images to workspace on demand. */
-export const SAVE_WORKSPACE_ROUTE = '/plugins/dsh-image-gen/save-workspace'
+export const SAVE_WORKSPACE_ROUTE = '/plugins/dazi-image-gen/save-workspace'
 /** Browser route the settings card probes provider connectivity through. */
-export const TEST_CONNECTION_ROUTE = '/plugins/dsh-image-gen/test'
+export const TEST_CONNECTION_ROUTE = '/plugins/dazi-image-gen/test'
 /** Browser route the workbench infinite canvas pushes live state through. */
-export const CANVAS_STATE_ROUTE = '/plugins/dsh-image-gen/canvas-state'
+export const CANVAS_STATE_ROUTE = '/plugins/dazi-image-gen/canvas-state'
 /** Upload a selected canvas original to the host attachment store. */
-export const CANVAS_ASSET_ROUTE = '/plugins/dsh-image-gen/canvas-asset'
-export const SUBSCRIPTION_LOGIN_ROUTE = '/plugins/dsh-image-gen/subscription-login'
-export const SUBSCRIPTION_STATUS_ROUTE = '/plugins/dsh-image-gen/subscription-status'
+export const CANVAS_ASSET_ROUTE = '/plugins/dazi-image-gen/canvas-asset'
+export const SUBSCRIPTION_LOGIN_ROUTE = '/plugins/dazi-image-gen/subscription-login'
+export const SUBSCRIPTION_STATUS_ROUTE = '/plugins/dazi-image-gen/subscription-status'
+
+/**
+ * Routes from the pre-rename package. Keep these host-side aliases so an
+ * already-open canvas, gallery, or saved session can finish loading after the
+ * package is upgraded. New browser code always uses the `dazi-image-gen`
+ * routes above.
+ */
+export const LEGACY_IMAGE_ROUTE = '/plugins/dsh-image-gen/image'
+export const LEGACY_IMPORT_ROUTE = '/plugins/dsh-image-gen/import'
+export const LEGACY_DELETE_ROUTE = '/plugins/dsh-image-gen/delete'
+export const LEGACY_STUDIO_ROUTE = '/plugins/dsh-image-gen/studio'
+export const LEGACY_INSPIRATION_ROUTE = '/plugins/dsh-image-gen/inspiration'
+export const LEGACY_SAVE_WORKSPACE_ROUTE = '/plugins/dsh-image-gen/save-workspace'
+export const LEGACY_TEST_CONNECTION_ROUTE = '/plugins/dsh-image-gen/test'
+export const LEGACY_CANVAS_STATE_ROUTE = '/plugins/dsh-image-gen/canvas-state'
+export const LEGACY_CANVAS_ASSET_ROUTE = '/plugins/dsh-image-gen/canvas-asset'
+export const LEGACY_SUBSCRIPTION_LOGIN_ROUTE = '/plugins/dsh-image-gen/subscription-login'
+export const LEGACY_SUBSCRIPTION_STATUS_ROUTE = '/plugins/dsh-image-gen/subscription-status'
+
+/** Metadata identifiers emitted by the current and pre-rename package. */
+export const IMAGE_RESULT_KINDS = ['dazi-image-gen', 'dsh-image-gen'] as const
+export const IMAGE_BATCH_KINDS = ['dazi-image-gen-batch', 'dsh-image-gen-batch'] as const
 
 /** Coarse model-facing kind of one shape on the workbench infinite canvas. */
 export type CanvasNodeKind = 'image' | 'draw' | 'text' | 'note' | 'geo' | 'arrow' | 'frame' | 'other'

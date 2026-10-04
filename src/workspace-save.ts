@@ -340,6 +340,8 @@ export async function deleteImageByAttachmentIdFromWorkspace(
   if (options.folder && options.folder.trim()) {
     candidateDirs.add(options.folder.trim())
   }
+  candidateDirs.add('dazi-image-gen')
+  // Images saved before the package rename remain removable in place.
   candidateDirs.add('dsh-image-gen')
   candidateDirs.add('image')
   candidateDirs.add('images')

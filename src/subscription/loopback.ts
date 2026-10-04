@@ -8,8 +8,8 @@
  */
 import http from 'node:http'
 
-const OK_HTML = '<!doctype html><meta charset="utf-8"><title>dsh-image-gen</title><p lang="zh-CN">登录成功，可以关闭此页返回设置。</p><p lang="en">Sign-in successful. You can close this page and return to settings.</p>'
-const ERR_HTML = '<!doctype html><meta charset="utf-8"><title>dsh-image-gen</title><p lang="zh-CN">登录失败，请返回设置重试。</p><p lang="en">Sign-in failed. Return to settings and try again.</p><p lang="zh-CN">需要代理时，请在重新登录前开启代理软件的 TUN（虚拟网卡）模式。普通系统代理可能无法覆盖 DSH 后端请求，导致网页授权后登录失败。</p><p lang="en">If you need a proxy, enable TUN (virtual network adapter) mode before trying again. A system proxy alone may not cover DSH backend requests, causing sign-in to fail after browser authorization.</p>'
+const OK_HTML = '<!doctype html><meta charset="utf-8"><title>dazi-image-gen</title><p lang="zh-CN">登录成功，可以关闭此页返回设置。</p><p lang="en">Sign-in successful. You can close this page and return to settings.</p>'
+const ERR_HTML = '<!doctype html><meta charset="utf-8"><title>dazi-image-gen</title><p lang="zh-CN">登录失败，请返回设置重试。</p><p lang="en">Sign-in failed. Return to settings and try again.</p><p lang="zh-CN">需要代理时，请在重新登录前开启代理软件的 TUN（虚拟网卡）模式。普通系统代理可能无法覆盖 DSH 后端请求，导致网页授权后登录失败。</p><p lang="en">If you need a proxy, enable TUN (virtual network adapter) mode before trying again. A system proxy alone may not cover DSH backend requests, causing sign-in to fail after browser authorization.</p>'
 
 /**
  * Loopback addresses accepted by the request handler. On dual-stack systems

@@ -1,6 +1,7 @@
 /** Persistent, bounded browser cache for publicly proxied inspiration images. */
 import { INSPIRATION_ROUTE } from '../shared.js'
 
+// Stable IndexedDB name: browser caches predate the package rename.
 const DB_NAME = 'dsh-image-gen-inspiration'
 const STORE = 'images'
 const CATALOG_STORE = 'catalog'

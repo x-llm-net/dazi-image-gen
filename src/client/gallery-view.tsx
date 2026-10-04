@@ -1086,7 +1086,7 @@ export const GalleryViewTab: FC<GalleryViewTabProps> = (props) => {
           : t('batchUnfavoritedToast', { count: String(targetIds.length) })
       )
     } catch (err) {
-      console.error('[dsh-image-gen] Batch favorite failed:', err)
+      console.error('[dazi-image-gen] Batch favorite failed:', err)
       void getGalleryItems().then((res) => setItems(res))
       showToast(t('batchFavoriteFailed'))
     }
@@ -1160,7 +1160,7 @@ export const GalleryViewTab: FC<GalleryViewTabProps> = (props) => {
 
       showToast(t('batchDownloadZipToast', { count: String(itemsToDownload.length) }))
     } catch (err) {
-      console.error('[dsh-image-gen] Batch download failed:', err)
+      console.error('[dazi-image-gen] Batch download failed:', err)
       showToast(t('batchDownloadFailed'))
     } finally {
       setIsDownloadingBatch(false)

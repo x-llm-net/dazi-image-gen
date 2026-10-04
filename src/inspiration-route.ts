@@ -246,7 +246,8 @@ function jsonError(res: ServerResponse, status: number, error: string): void {
 }
 
 // ── 磁盘 LRU 缓存 (全异步非阻塞) ────────────────────────────────────
-// 缓存目录跟随 DSH 用户数据目录 (~/.dsh/cache/dsh-image-gen/inspiration/)
+// Keep the cache directory stable across the package rename so downloaded
+// inspiration metadata and images remain available after upgrading.
 // 读写不阻塞 Node.js 事件循环；Windows NTFS 默认不记录 atime，使用 mtime（修改时间）作为 FIFO 淘汰基准。
 
 const MIME_TO_EXT: Record<string, string> = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' }

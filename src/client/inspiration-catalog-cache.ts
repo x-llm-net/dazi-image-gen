@@ -1,6 +1,7 @@
 /** Keep a manually refreshed public catalog available across plugin restarts. */
 import type { InspirationCatalog } from '../inspiration.js'
 
+// Stable IndexedDB name: browser caches predate the package rename.
 const DB_NAME = 'dsh-image-gen-inspiration'
 const STORE = 'catalog'
 const IMAGE_STORE = 'images'

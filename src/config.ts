@@ -73,7 +73,7 @@ export {
 }
 
 /** Default workspace subfolder that receives generated image files. */
-export const DEFAULT_WORKSPACE_FOLDER = 'dsh-image-gen'
+export const DEFAULT_WORKSPACE_FOLDER = 'dazi-image-gen'
 
 /** Google tool-level controls. Aligned with gemini-3.1-flash-image's common set. */
 export const ASPECT_RATIOS = ['1:1', '3:2', '2:3', '4:3', '3:4', '4:5', '5:4', '16:9', '9:16', '21:9'] as const

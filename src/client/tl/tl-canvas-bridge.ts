@@ -76,7 +76,7 @@ async function deliver(): Promise<void> {
         completed = await consumer(batch)
       } catch (error) {
         // A failed batch must not become an infinite retry/replay loop.
-        console.warn('[dsh-image-gen] canvas landing failed:', error)
+        console.warn('[dazi-image-gen] canvas landing failed:', error)
       }
       if (completed) {
         for (const item of batch) {

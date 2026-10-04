@@ -521,7 +521,7 @@ describe('image tool registration', () => {
     const content = tool.output.render({ prompts }, value as never)
     expect(content.filter(block => block.type === 'image')).toEqual(images.map(image => ({ type: 'image', attachment: image.attachment })))
     const meta = tool.output.presentationMeta?.({ prompts }, value as never)
-    expect(meta).toMatchObject({ kind: 'dsh-image-gen-batch', images })
+    expect(meta).toMatchObject({ kind: 'dazi-image-gen-batch', images })
 
     const definition = createImageResultDefinition()
     const native = { type: 'tool/result', seq: 10, data: { turn: 1, meta } }

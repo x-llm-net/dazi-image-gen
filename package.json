@@ -1,7 +1,7 @@
 {
-  "name": "dsh-image-gen",
-  "version": "0.8.5-dazi.1",
-  "description": "Dazi fork of dsh-image-gen with native workbench provider binding.",
+  "name": "dazi-image-gen",
+  "version": "0.8.5-dazi.2",
+  "description": "Dazi image generation plugin with native workbench provider binding.",
   "type": "module",
   "author": "x-llm-net",
   "repository": {

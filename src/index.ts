@@ -9,7 +9,7 @@ import { requireApiKey, resolveApiKey } from './credentials.js'
 import { CanvasMirror } from './canvas-state.js'
 import { serveCanvasState } from './canvas-state-route.js'
 import { serveCanvasAsset } from './canvas-asset-route.js'
-import { CANVAS_ASSET_ROUTE } from './shared.js'
+import { CANVAS_ASSET_ROUTE, LEGACY_CANVAS_ASSET_ROUTE } from './shared.js'
 import { registerCanvasTools, resolveCanvasSelectionReferences } from './canvas-tools.js'
 import { editComfyUIImage, generateComfyUIImage } from './comfyui.js'
 import { editDashScopeImage, generateDashScopeImage } from './dashscope.js'
@@ -20,7 +20,7 @@ import { editOpenAICompatibleImage, generateOpenAICompatibleImage } from './open
 import { type ResolvedReferenceImage, resolveReferenceImages } from './reference-image.js'
 import { editSeedreamImage } from './seedream.js'
 import { generateSubscriptionImage, registerSubscriptionRoutes, subscriptionToolParameters, SubscriptionManager } from './subscription.js'
-import { CANVAS_STATE_ROUTE, IMAGE_GENERATION_NAMESPACE, IMAGE_PROVIDERS, IMPORT_ROUTE, INSPIRATION_ROUTE, STUDIO_ROUTE, TEST_CONNECTION_ROUTE, mergeComfyUIPrompt, type ImageProvider } from './shared.js'
+import { CANVAS_STATE_ROUTE, IMAGE_BATCH_KINDS, IMAGE_GENERATION_NAMESPACE, IMAGE_PROVIDERS, IMPORT_ROUTE, INSPIRATION_ROUTE, STUDIO_ROUTE, TEST_CONNECTION_ROUTE, LEGACY_CANVAS_STATE_ROUTE, LEGACY_IMPORT_ROUTE, LEGACY_INSPIRATION_ROUTE, LEGACY_STUDIO_ROUTE, LEGACY_TEST_CONNECTION_ROUTE, LEGACY_IMAGE_ROUTE, LEGACY_DELETE_ROUTE, LEGACY_SAVE_WORKSPACE_ROUTE, mergeComfyUIPrompt, type ImageProvider } from './shared.js'
 import { createInspirationRoute } from './inspiration-route.js'
 import { BUNDLED_INSPIRATION_CATALOG, searchInspirationCases } from './inspiration.js'
 import { generateFromStudio, describeStudio } from './studio.js'
@@ -38,7 +38,7 @@ export { INSPIRATION_ROUTE } from './shared.js'
 export { TEST_CONNECTION_ROUTE } from './shared.js'
 export { CANVAS_STATE_ROUTE } from './shared.js'
 
-export const name = 'dsh-image-gen'
+export const name = 'dazi-image-gen'
 export const inject = ['tools', 'attachments', 'credentials', 'webServer', 'settings']
 
 interface GeneratedValue {
@@ -84,6 +84,27 @@ function providerOverrideOf(value: unknown): ImageProvider | undefined {
   return value as ImageProvider
 }
 
+/** Register the current route and a short-lived alias for pre-rename sessions. */
+function registerRouteAliases(
+  ctx: Context,
+  registration: { kind: 'exact' | 'prefix'; path: string; handler: (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => unknown },
+  legacyPath: string,
+  label: string,
+): void {
+  ctx.effect(() => {
+    const register = ctx.webServer.register as unknown as (value: unknown) => unknown
+    const cleanups = [
+      register(registration),
+      register({ ...registration, path: legacyPath }),
+    ]
+    return () => {
+      for (const cleanup of cleanups) {
+        if (typeof cleanup === 'function') cleanup()
+      }
+    }
+  }, label)
+}
+
 export function apply(ctx: Context, config: Config = {}): void {
   // DSH 0.1.7 resolves every `.volatile()` schema field into a stable box
   // whose `.get()` returns the current snapshot, so a settings edit lands
@@ -105,7 +126,7 @@ export function apply(ctx: Context, config: Config = {}): void {
   const current: () => Config = () => bindWorkbenchProvider(ctx, sourceConfig()) as Config
   ctx.inject(['systemPrompt'], promptCtx => {
     promptCtx.systemPrompt.context({
-      name: 'dsh-image-gen:workbench-provider',
+      name: 'dazi-image-gen:workbench-provider',
       order: 61,
       text: () => {
         const bound = current()
@@ -128,19 +149,19 @@ export function apply(ctx: Context, config: Config = {}): void {
     setSource: source => { sourceConfig = () => migrateOpenAICompatConfig(plainConfig(source())) },
     onChange: () => {},
   })
-  ctx.effect(() => ctx.webServer.register({
+  registerRouteAliases(ctx, {
     kind: 'exact', path: IMAGE_ROUTE,
     handler: (req, res) => serveImage(req, res, { readImage: ref => ctx.attachments.readImage(ref) }),
-  }), 'dsh-image-gen: image route')
-  ctx.effect(() => ctx.webServer.register({
+  }, LEGACY_IMAGE_ROUTE, 'dazi-image-gen: image route')
+  registerRouteAliases(ctx, {
     kind: 'exact', path: IMPORT_ROUTE,
     handler: (req, res) => serveImport(req, res, {
       saveImage: image => ctx.attachments.saveImage(image),
       maxImageBytes: ctx.attachments.imageLimits.maxImageBytes,
       mediaTypes: ctx.attachments.imageLimits.mediaTypes,
     }),
-  }), 'dsh-image-gen: import route')
-  ctx.effect(() => ctx.webServer.register({
+  }, LEGACY_IMPORT_ROUTE, 'dazi-image-gen: import route')
+  registerRouteAliases(ctx, {
     kind: 'exact', path: DELETE_ROUTE,
     handler: (req, res) => serveDelete(req, res, {
       deleteWorkspaceImage: async filePath => {
@@ -148,8 +169,8 @@ export function apply(ctx: Context, config: Config = {}): void {
         return deleteImageFromWorkspace(filePath, new Set([...knownWorkspaceRoots, ...discovered, process.cwd()]))
       },
     }),
-  }), 'dsh-image-gen: delete route')
-  ctx.effect(() => ctx.webServer.register({
+  }, LEGACY_DELETE_ROUTE, 'dazi-image-gen: delete route')
+  registerRouteAliases(ctx, {
     kind: 'exact', path: SAVE_WORKSPACE_ROUTE,
     handler: (req, res) => serveSaveWorkspace(req, res, {
       readImage: ref => ctx.attachments.readImage(ref),
@@ -172,16 +193,16 @@ export function apply(ctx: Context, config: Config = {}): void {
       },
       isSaveEnabled: () => current().saveToWorkspace !== false,
     }),
-  }), 'dsh-image-gen: save workspace route')
-  ctx.effect(() => ctx.webServer.register({
+  }, LEGACY_SAVE_WORKSPACE_ROUTE, 'dazi-image-gen: save workspace route')
+  registerRouteAliases(ctx, {
     kind: 'exact', path: TEST_CONNECTION_ROUTE,
     handler: (req, res) => serveTestConnection(req, res, {
       resolveKey: provider => resolveApiKey(ctx, provider, current()),
       config: () => current(),
       subscriptionManager,
     }),
-  }), 'dsh-image-gen: test connection route')
-  ctx.effect(() => ctx.webServer.register({
+  }, LEGACY_TEST_CONNECTION_ROUTE, 'dazi-image-gen: test connection route')
+  registerRouteAliases(ctx, {
     kind: 'exact', path: CANVAS_STATE_ROUTE,
     handler: (req, res) => serveCanvasState(req, res, {
       mirror: canvasMirror,
@@ -189,20 +210,20 @@ export function apply(ctx: Context, config: Config = {}): void {
       maxBodyBytes: Math.ceil(ctx.attachments.imageLimits.maxImageBytes * 1.4) + 256 * 1024,
       maxImageBytes: ctx.attachments.imageLimits.maxImageBytes,
     }),
-  }), 'dsh-image-gen: canvas state route')
-  ctx.effect(() => ctx.webServer.register({
+  }, LEGACY_CANVAS_STATE_ROUTE, 'dazi-image-gen: canvas state route')
+  registerRouteAliases(ctx, {
     kind: 'exact', path: CANVAS_ASSET_ROUTE,
     handler: (req, res) => serveCanvasAsset(req, res, {
       maxImageBytes: ctx.attachments.imageLimits.maxImageBytes,
       saveImage: image => ctx.attachments.saveImage(image),
     }),
-  }), 'dsh-image-gen: canvas asset route')
+  }, LEGACY_CANVAS_ASSET_ROUTE, 'dazi-image-gen: canvas asset route')
   // A few lines of live canvas context per model request. The service is an
   // optional dependency: hosts without dsh-system-prompt boot unchanged and
   // the canvas tools remain the model's way to discover the canvas.
   ctx.inject(['systemPrompt'], (promptCtx: Context) => {
     promptCtx.systemPrompt.context({
-      name: 'dsh-image-gen:canvas',
+      name: 'dazi-image-gen:canvas',
       order: 60,
       text: () => canvasMirror.digest(),
     })
@@ -213,7 +234,7 @@ export function apply(ctx: Context, config: Config = {}): void {
     // views, and dead screenshots never reach the disk.
     persistSelectionImage: image => ctx.attachments.saveImage({ data: image.data, mediaType: image.mediaType, name: 'canvas-selection' }),
   })
-  ctx.effect(() => ctx.webServer.register({
+  registerRouteAliases(ctx, {
     kind: 'exact', path: STUDIO_ROUTE,
     handler: (req, res) => serveStudio(req, res, {
       describe: async () => {
@@ -232,16 +253,17 @@ export function apply(ctx: Context, config: Config = {}): void {
       },
       maxBodyBytes: Math.ceil(ctx.attachments.imageLimits.maxImageBytes * 1.4 * 5) + 256 * 1024,
     }),
-  }), 'dsh-image-gen: studio route')
+  }, LEGACY_STUDIO_ROUTE, 'dazi-image-gen: studio route')
   const serveInspiration = createInspirationRoute()
-  ctx.effect(() => ctx.webServer.register({
+  registerRouteAliases(ctx, {
     kind: 'prefix', path: INSPIRATION_ROUTE,
     handler: (req, res) => {
       const originalUrl = req.url ?? '/'
-      req.url = originalUrl.startsWith(INSPIRATION_ROUTE) ? originalUrl.slice(INSPIRATION_ROUTE.length) || '/' : originalUrl
+      const prefix = originalUrl.startsWith(INSPIRATION_ROUTE) ? INSPIRATION_ROUTE : LEGACY_INSPIRATION_ROUTE
+      req.url = originalUrl.startsWith(prefix) ? originalUrl.slice(prefix.length) || '/' : originalUrl
       return serveInspiration(req, res)
     },
-  }), 'dsh-image-gen: inspiration route')
+  }, LEGACY_INSPIRATION_ROUTE, 'dazi-image-gen: inspiration route')
 
   /** Per-item generation request shared by generate_image and generate_images. */
   const generateSingle = async (args: SingleGenerationArgs, exec: { agent?: { session: { header: { cwd?: string } } }; signal: AbortSignal }): Promise<GeneratedValue> => {
@@ -349,7 +371,7 @@ export function apply(ctx: Context, config: Config = {}): void {
           block.type === 'text' ? { ...block, text: `${block.text}\nImage prompt: ${image.prompt}` } : block)),
       ],
       presentationMeta: (_args: unknown, value: BatchGeneratedValue) => ({
-        kind: 'dsh-image-gen-batch',
+        kind: 'dazi-image-gen-batch',
         images: value.images.map(image => imageOutput('Generated').presentationMeta({ prompt: image.prompt }, image)),
       }),
     },
@@ -547,7 +569,7 @@ function imageOutput(verb: 'Generated' | 'Edited') {
       ]
     },
     presentationMeta: (args: unknown, value: GeneratedValue) => ({
-      kind: 'dsh-image-gen', attachment: attachmentMeta(value.attachment), provider: value.provider, model: value.model, output: value.output,
+      kind: 'dazi-image-gen', attachment: attachmentMeta(value.attachment), provider: value.provider, model: value.model, output: value.output,
       ...(verb === 'Edited' ? { operation: 'edit' } : {}),
       ...(typeof value.savedTo === 'string' ? { savedTo: value.savedTo } : {}),
       ...(typeof value.seed === 'number' ? { seed: value.seed } : {}),
@@ -588,7 +610,7 @@ async function saveGenerated(
     value.savedTo = await saveImageToWorkspace({ workspaceRoot, folder: config.workspaceFolder, attachmentId: attachment.attachmentId, mediaType: generated.mediaType, data: generated.data, signal: exec.signal })
   } catch (error) {
     exec.signal.throwIfAborted()
-    ctx.logger.warn(`dsh-image-gen: failed to save image to workspace: ${error instanceof Error ? error.message : String(error)}`)
+    ctx.logger.warn(`dazi-image-gen: failed to save image to workspace: ${error instanceof Error ? error.message : String(error)}`)
     value.saveError = error instanceof Error ? error.message : String(error)
   }
   return value
@@ -597,7 +619,7 @@ async function saveGenerated(
 function imagePresentation(result: ToolResult) {
   const meta = result.meta
   if (typeof meta === 'object' && meta !== null && !Array.isArray(meta)
-    && meta.kind === 'dsh-image-gen-batch' && Array.isArray(meta.images)) {
+    && typeof meta.kind === 'string' && (IMAGE_BATCH_KINDS as readonly string[]).includes(meta.kind) && Array.isArray(meta.images)) {
     const content = meta.images.flatMap(image => {
       const attachment = imageAttachmentFromMeta(image)
       return attachment === undefined ? [] : [{ type: 'image' as const, attachment }]

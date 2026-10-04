@@ -80,7 +80,7 @@ declare const __CANVAS_BUILD_TS__: string
 // stale host webview cache is provable from the browser console. The typeof
 // guard keeps the module importable where the define is absent (vitest).
 if (typeof __CANVAS_BUILD_TS__ !== 'undefined') {
-  console.info(`[dsh-image-gen] canvas bundle ${__CANVAS_BUILD_TS__}`)
+  console.info(`[dazi-image-gen] canvas bundle ${__CANVAS_BUILD_TS__}`)
 }
 
 type Provider = ImageProvider
@@ -163,9 +163,9 @@ interface ModernUiConversation {
 }
 
 /** Right-sidebar tab-type registration id (DSH 0.1.5 `sidebarRightTabs`). */
-const SIDEBAR_STUDIO_TAB_ID = 'dsh-image-gen/studio'
+const SIDEBAR_STUDIO_TAB_ID = 'dazi-image-gen/studio'
 /** The tab kind: a page type opened by kind, recognizing no resource address. */
-const SIDEBAR_STUDIO_TAB_KIND = 'dsh-image-gen-studio'
+const SIDEBAR_STUDIO_TAB_KIND = 'dazi-image-gen-studio'
 /**
  * Runtime face of DSH 0.1.5's `sidebarRightTabs` service (stage one of a
  * right-sidebar tab type's registration). Kept local and duck-typed: hosts
@@ -829,19 +829,19 @@ export function apply(ctx: Context): void {
     owner => {
       const sessions = owner.get('sessions') as CanvasSessions | undefined
       if (typeof sessions?.binding !== 'function' || typeof sessions.list?.subscribe !== 'function') return
-      owner.effect(() => startConversationLandings(sessions), 'dsh-image-gen: live canvas images')
+      owner.effect(() => startConversationLandings(sessions), 'dazi-image-gen: live canvas images')
     },
   )
 
   ctx.effect(() => {
     const style = document.createElement('style')
-    style.dataset.plugin = 'dsh-image-gen'
+    style.dataset.plugin = 'dazi-image-gen'
     style.textContent = `${STYLE}\n${STUDIO_STYLE}\n${INSPIRATION_STYLE}\n${PROVIDER_PILL_STYLE}\n${TL_CSS}\n${TL_THEME_CSS}`
     document.head.appendChild(style)
     return () => {
       style.remove()
     }
-  }, 'dsh-image-gen: styles')
+  }, 'dazi-image-gen: styles')
 
   // One-time cleanup: the workflow canvas tab was removed; drop its orphaned
   // IndexedDB database. Best-effort only: a missing database succeeds
@@ -859,13 +859,13 @@ export function apply(ctx: Context): void {
     (owner) => {
       const uiConversation = asModernUiConversation(owner.get('uiConversation'))
       if (uiConversation === undefined) {
-        throw new Error('dsh-image-gen: uiConversation has an incompatible interface')
+        throw new Error('dazi-image-gen: uiConversation has an incompatible interface')
       }
       promotion.enabled = true
       const ownerRegister = owner.slots.register.bind(owner.slots) as unknown as (options: object, component: unknown) => () => void
       owner.effect(
       () => uiConversation.events.register(createImageResultDefinition()),
-      'dsh-image-gen: promoted image result node',
+      'dazi-image-gen: promoted image result node',
       )
       ;(owner.slots.inject as any)('conversation.chat.node', () => ownerRegister({
         name: 'conversation.chat.node',
@@ -883,7 +883,7 @@ export function apply(ctx: Context): void {
     const remote = ctx.get('remote') as { $on?: (event: 'credentials/reference-updated', listener: () => void) => () => void } | undefined
     if (typeof remote?.$on !== 'function') return () => {}
     return remote.$on('credentials/reference-updated', notifyCredentialsUpdated)
-  }, 'dsh-image-gen: credential events')
+  }, 'dazi-image-gen: credential events')
   const credentialEvents: CredentialEvents = {
     listen(callback: () => void): () => void {
       credentialListeners.add(callback)
@@ -964,7 +964,7 @@ export function apply(ctx: Context): void {
   ctx.inject(['remote.credentials'], (remoteCtx) => {
     const credentials = asCredentialsRemote(remoteCtx.get('remote.credentials'))
     if (credentials === undefined) {
-      console.warn('dsh-image-gen: remote.credentials resolved with an incompatible interface; key settings stay degraded')
+      console.warn('dazi-image-gen: remote.credentials resolved with an incompatible interface; key settings stay degraded')
       return
     }
     credentialsRef.current = credentials
@@ -1025,7 +1025,7 @@ export function apply(ctx: Context): void {
         priority: 'extension',
         title: () => sidebarTitle(),
         guide: [{ order: 100, title: () => sidebarTitle() }],
-      }), 'dsh-image-gen: sidebar studio tab type')
+      }), 'dazi-image-gen: sidebar studio tab type')
       // Stage two - the body, keyed by the definition id.
       const ownerRegister = owner.slots.register.bind(owner.slots) as unknown as (options: object, component: unknown) => () => void
       ;(owner.slots.inject as (key: string, factory: () => () => void) => void)('sidebar.right.pane.tab', () => ownerRegister({
@@ -1245,7 +1245,7 @@ export function ImageGenerationSettingsCard(props: SettingsCardProps) {
   const [providerMessage, setProviderMessage] = useState('')
   const [providerMessageIsError, setProviderMessageIsError] = useState(false)
   const [saveToWorkspace, setSaveToWorkspace] = useState(() => props.scope.getSnapshot().value?.saveToWorkspace ?? true)
-  const [workspaceFolder, setWorkspaceFolder] = useState(() => props.scope.getSnapshot().value?.workspaceFolder ?? 'dsh-image-gen')
+  const [workspaceFolder, setWorkspaceFolder] = useState(() => props.scope.getSnapshot().value?.workspaceFolder ?? 'dazi-image-gen')
   const [showPill, setShowPill] = useState(() => props.scope.getSnapshot().value?.showProviderPill === true)
   const [uiMessage, setUiMessage] = useState('')
   const [uiMessageIsError, setUiMessageIsError] = useState(false)
@@ -1410,7 +1410,7 @@ export function ImageGenerationSettingsCard(props: SettingsCardProps) {
     const value = snapshot.value
     setDefaultProvider(value?.provider ?? 'google')
     setSaveToWorkspace(value?.saveToWorkspace ?? true)
-    setWorkspaceFolder(value?.workspaceFolder ?? 'dsh-image-gen')
+    setWorkspaceFolder(value?.workspaceFolder ?? 'dazi-image-gen')
     setShowPill(value?.showProviderPill === true)
     setRows(current => {
       const next = {} as Record<Provider, ProviderRowState>
@@ -1735,12 +1735,12 @@ export function ImageGenerationSettingsCard(props: SettingsCardProps) {
   /** Folder input persists on Enter or blur; no save button needed. */
   const commitWorkspaceFolder = (): void => {
     const next = workspaceFolder.trim()
-    if (next === (snapshot.value?.workspaceFolder ?? 'dsh-image-gen')) return
+    if (next === (snapshot.value?.workspaceFolder ?? 'dazi-image-gen')) return
     setWorkspaceMessage(''); setWorkspaceMessageIsError(false)
     void saveSetting('workspaceFolder', next).then(() => {
       setWorkspaceMessage(t('saved'))
     }).catch((cause: unknown) => {
-      setWorkspaceFolder(snapshot.value?.workspaceFolder ?? 'dsh-image-gen')
+      setWorkspaceFolder(snapshot.value?.workspaceFolder ?? 'dazi-image-gen')
       setWorkspaceMessage(cause instanceof Error ? cause.message : String(cause))
       setWorkspaceMessageIsError(true)
     })
@@ -2123,7 +2123,7 @@ export function ImageGenerationSettingsCard(props: SettingsCardProps) {
                   onChange={event => { setWorkspaceFolder(event.target.value) }}
                   onBlur={() => { commitWorkspaceFolder() }}
                   onKeyDown={event => { if (event.key === 'Enter') commitWorkspaceFolder() }}
-                  placeholder="dsh-image-gen"
+                  placeholder="dazi-image-gen"
                   disabled={!snapshot.writable}
                 />
                 <span className="dsh-ig-hint">{t('folderHint')}</span>

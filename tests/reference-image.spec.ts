@@ -245,7 +245,7 @@ describe('reference image compatibility boundary', () => {
     expect(parseImageAttachmentRef({ attachmentId: 'fake' })).toBeUndefined()
   })
   it('reads an explicitly named image from the session workspace', async () => {
-    const workspaceRoot = await mkdtemp(join(tmpdir(), 'dsh-image-gen-workspace-'))
+    const workspaceRoot = await mkdtemp(join(tmpdir(), 'dazi-image-gen-workspace-'))
     await mkdir(join(workspaceRoot, 'images'))
     await writeFile(join(workspaceRoot, 'images', 'source.jpg'), new Uint8Array([0xff, 0xd8, 0xff, 0x00]))
     const deriveMessages = vi.fn(() => messages([{ type: 'image', attachment: imageRef('newest') }]))
@@ -263,7 +263,7 @@ describe('reference image compatibility boundary', () => {
   })
 
   it('reads multiple workspace images in caller order', async () => {
-    const workspaceRoot = await mkdtemp(join(tmpdir(), 'dsh-image-gen-workspace-'))
+    const workspaceRoot = await mkdtemp(join(tmpdir(), 'dazi-image-gen-workspace-'))
     await writeFile(join(workspaceRoot, 'first.png'), new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1]))
     await writeFile(join(workspaceRoot, 'second.jpg'), new Uint8Array([0xff, 0xd8, 0xff, 2]))
 
@@ -279,7 +279,7 @@ describe('reference image compatibility boundary', () => {
   })
 
   it('accepts a redundant singular workspace path already included in source_paths', async () => {
-    const workspaceRoot = await mkdtemp(join(tmpdir(), 'dsh-image-gen-workspace-'))
+    const workspaceRoot = await mkdtemp(join(tmpdir(), 'dazi-image-gen-workspace-'))
     await writeFile(join(workspaceRoot, 'first.png'), new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
     await writeFile(join(workspaceRoot, 'second.jpg'), new Uint8Array([0xff, 0xd8, 0xff]))
 
@@ -293,7 +293,7 @@ describe('reference image compatibility boundary', () => {
   })
 
   it('does not fall back to the newest conversation image when source_path is missing', async () => {
-    const workspaceRoot = await mkdtemp(join(tmpdir(), 'dsh-image-gen-workspace-'))
+    const workspaceRoot = await mkdtemp(join(tmpdir(), 'dazi-image-gen-workspace-'))
     const readImage = vi.fn()
 
     await expect(resolveReferenceImage({
@@ -306,7 +306,7 @@ describe('reference image compatibility boundary', () => {
   })
 
   it('rejects workspace traversal and symlink escapes', async () => {
-    const parent = await mkdtemp(join(tmpdir(), 'dsh-image-gen-parent-'))
+    const parent = await mkdtemp(join(tmpdir(), 'dazi-image-gen-parent-'))
     const workspaceRoot = join(parent, 'workspace')
     const outside = join(parent, 'outside')
     await mkdir(workspaceRoot)

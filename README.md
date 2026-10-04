@@ -1,20 +1,20 @@
 <div align="center">
 
-<img src="docs/assets/readme/hero-zh.webp" alt="dsh-image-gen 中文功能概览" width="100%" />
+<img src="docs/assets/readme/hero-zh.webp" alt="dazi-image-gen 中文功能概览" width="100%" />
 
 <br />
 
 <p><strong>简体中文</strong> · <a href="README.en.md">English</a></p>
 
-# 🎨 dsh-image-gen
+# 🎨 dazi-image-gen
 
 ### DeepSeek Harness 的原生 AI 图像创作套件
 
 <p><b>AI 创作画布 · 对话生图与编辑 · Studio 批量创作 · 多模型对比 · 500+ Prompt 灵感 · 图库管理 · 本地 ComfyUI · 订阅免 Key</b></p>
 
 <p>
-  <a href="https://www.npmjs.com/package/dsh-image-gen"><img src="https://img.shields.io/npm/v/dsh-image-gen?style=flat-square&color=4f6ef7" alt="npm version" /></a>
-  <a href="https://www.npmjs.com/package/dsh-image-gen"><img src="https://img.shields.io/npm/dm/dsh-image-gen?style=flat-square&color=10b981" alt="npm downloads" /></a>
+  <a href="https://www.npmjs.com/package/dazi-image-gen"><img src="https://img.shields.io/npm/v/dazi-image-gen?style=flat-square&color=4f6ef7" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/dazi-image-gen"><img src="https://img.shields.io/npm/dm/dazi-image-gen?style=flat-square&color=10b981" alt="npm downloads" /></a>
   <a href="https://github.com/x-llm-net/dazi-image-gen/actions/workflows/ci.yml"><img src="https://github.com/x-llm-net/dazi-image-gen/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <a href="https://dsh-insights.com/p/x-llm-net/dazi-image-gen"><img src="https://dsh-insights.com/badge/x-llm-net/dazi-image-gen.svg" alt="DSH Insights health" /></a>
   <a href="https://github.com/x-llm-net/dazi-image-gen/stargazers"><img src="https://img.shields.io/github/stars/x-llm-net/dazi-image-gen?style=flat-square" alt="GitHub stars" /></a>
@@ -47,13 +47,13 @@
 
 **为 DeepSeek Harness 带来完整的 AI 图像创作工作流。**
 
-`dsh-image-gen` 不只是简单的对话生图，而是为 DSH 补齐从 **对话生成与连续修图**、**AI 创作画布**、**Studio 批量创作**、**多模型横向对比**，到 **Prompt 灵感库** 与 **本地 ComfyUI** 的完整图像创作能力。
+`dazi-image-gen` 不只是简单的对话生图，而是为 DSH 补齐从 **对话生成与连续修图**、**AI 创作画布**、**Studio 批量创作**、**多模型横向对比**，到 **Prompt 灵感库** 与 **本地 ComfyUI** 的完整图像创作能力。
 
 支持主流云端图像模型与本地私有化工作流，既可使用 BYOK（自带 Key），也支持通过订阅账号直接使用，生成结果支持按工作区隔离存储。
 
 ### 搭子适配版说明
 
-本仓库是搭子工作台维护的 fork。为了兼容 DeepSeek Harness 的 bundle、路由和已有配置，npm 包名仍保留为 `dsh-image-gen`；搭子适配只增加了一个原生 Provider 绑定层，不会复制模型 API Key，也不会替换 Harness 的 Agent、权限或文件工具。
+本仓库是搭子工作台维护的图片生成插件，包名为 `dazi-image-gen`，与上游的 `dsh-image-gen` 明确区分。搭子适配增加了原生 Provider 绑定层，不会复制模型 API Key，也不会替换 Harness 的 Agent、权限或文件工具。
 
 在搭子中安装后，图像生成设置会显示“搭子模型”。它直接读取「设置 → 模型」里已配置的提供商和模型列表，因此只需要选择图像模型，不需要再次填写 Base URL 或 API Key。默认绑定 `xiaowen-runtime`，默认图像模型为 `gpt-image-2.5`。
 
@@ -63,7 +63,7 @@
 git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
-如果已安装上游版 `dsh-image-gen`，先在「插件 → 已安装」中卸载它，再添加这个搭子版本。插件管理器不允许两个来源的同名包同时安装；小文模型凭据保存在「设置 → 模型」，不需要重新填写。
+如果已安装上游版 `dsh-image-gen`，先在「插件 → 已安装」中卸载它，再添加这个搭子版本。两者是不同的包，可以分别安装；但同时启用会提供重复的图片工具，建议只启用搭子版本。旧版搭子安装记录会在启动时迁移到 `dazi-image-gen`，已有会话和图片目录继续可读。
 
 也可以在工作台 profile 的终端执行：
 
@@ -83,7 +83,7 @@ pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-ge
 
 > **版本更新提示：** 本次版本变化较大，老用户请更新至最新版本。
 
-<img src="docs/assets/readme/workflow-overview.webp" alt="dsh-image-gen 完整 AI 图像创作工作流" width="100%" />
+<img src="docs/assets/readme/workflow-overview.webp" alt="dazi-image-gen 完整 AI 图像创作工作流" width="100%" />
 
 ---
 
@@ -105,7 +105,7 @@ pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-ge
 
 环境要求：搭子工作台（基于 DeepSeek Harness），Node.js `^22.19.0` 或 `>= 24.0.0`。
 
-若此前已安装上游版 `dsh-image-gen`，请先从「插件 → 已安装」卸载，再安装此版本；插件管理器不允许同名包重复安装。
+若此前已安装上游版 `dsh-image-gen`，请先从「插件 → 已安装」禁用或卸载，再安装此版本；两个插件会提供重复的图片工具。
 
 在搭子的 profile 终端运行：
 
@@ -134,7 +134,7 @@ pnpm dsh plugin --profile web add ./dazi-image-gen
 
 ### 2. 选择图像模型
 
-安装并启用后，打开侧栏「插件」页面，在「已安装」中进入 **dsh-image-gen** 的设置。默认的「搭子模型」复用模型设置中的小文提供商与凭据，不需要再次输入 API Key 或 Base URL。点击**「获取模型」**，然后选择可用的图像模型（例如 `gpt-image-2.5`）并保存。
+安装并启用后，打开侧栏「插件」页面，在「已安装」中进入 **dazi-image-gen** 的设置。默认的「搭子模型」复用模型设置中的小文提供商与凭据，不需要再次输入 API Key 或 Base URL。点击**「获取模型」**，然后选择可用的图像模型（例如 `gpt-image-2.5`）并保存。
 
 若要使用 ComfyUI、其他云端 Provider 或订阅登录，可展开对应的 Provider 配置，按页面提示填写服务地址或授权信息。
 
@@ -212,7 +212,7 @@ pnpm dsh plugin --profile web add ./dazi-image-gen
 <br />
 
 <div align="center">
-  <img src="docs/assets/readme/studio-workbench.webp" alt="dsh-image-gen Studio 工作台" width="100%" />
+  <img src="docs/assets/readme/studio-workbench.webp" alt="dazi-image-gen Studio 工作台" width="100%" />
   <br />
   <sub>在同一个 Studio 中完成参考图导入、参数控制、批量生成、结果筛选与保存。</sub>
 </div>
@@ -361,7 +361,7 @@ pnpm dsh plugin --profile web add ./dazi-image-gen
 <details>
 <summary><strong>安装后找不到“图像生成”设置怎么办？</strong></summary>
 
-打开侧栏「插件」页面，在「已安装」中选择 dsh-image-gen。较早的 Harness 版本可能将插件设置放在「设置 → 插件配置」中。
+打开侧栏「插件」页面，在「已安装」中选择 dazi-image-gen。较早的 Harness 版本可能将插件设置放在「设置 → 插件配置」中。
 
 若页面中仍没有该插件，先完全重启当前搭子工作台，再检查插件配置：
 
@@ -369,14 +369,14 @@ pnpm dsh plugin --profile web add ./dazi-image-gen
 dsh --profile web --dump-config
 ```
 
-如果输出中没有 `dsh-image-gen`，请重新执行安装命令。提交 Issue 时请附搭子版本、插件版本和错误日志，不要上传 API Key。
+如果输出中没有 `dazi-image-gen`，请重新执行安装命令。提交 Issue 时请附搭子版本、插件版本和错误日志，不要上传 API Key。
 
 </details>
 
 <details>
 <summary><strong>生成图片保存在哪里？</strong></summary>
 
-开启“保存到工作区”后，对话生成结果默认保存在当前工作区的 `dsh-image-gen/` 子目录，也可以在设置中修改。Studio 候选图先留在临时画布，只有用户选中的结果才会进入图库并保存。
+开启“保存到工作区”后，对话生成结果默认保存在当前工作区的 `dazi-image-gen/` 子目录，也可以在设置中修改。Studio 候选图先留在临时画布，只有用户选中的结果才会进入图库并保存。
 
 </details>
 
@@ -428,7 +428,7 @@ pnpm run pack:check
 
 <div align="center">
 
-如果 `dsh-image-gen` 对你的工作流有所帮助，欢迎在 GitHub 点亮一颗 ⭐ **Star** 支持持续维护。
+如果 `dazi-image-gen` 对你的工作流有所帮助，欢迎在 GitHub 点亮一颗 ⭐ **Star** 支持持续维护。
 
 **[查看 Releases](https://github.com/x-llm-net/dazi-image-gen/releases) · [提交 Issue](https://github.com/x-llm-net/dazi-image-gen/issues) · [参与贡献](CONTRIBUTING.md)**
 

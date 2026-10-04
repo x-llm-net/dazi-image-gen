@@ -51,7 +51,7 @@ describe('promoted image result conversation node', () => {
       step: 1,
       message: { source: { callId: 'call-1' }, content: [] },
       meta: {
-        kind: 'dsh-image-gen',
+        kind: 'dazi-image-gen',
         attachment,
         prompt: 'a promoted image',
         provider: 'google',
@@ -118,6 +118,21 @@ describe('promoted image result conversation node', () => {
       data: { turn: 1, step: 1, message: { source: { callId: 'call-1' }, content: [] }, meta: { kind: 'other' } },
     }
     expect(createImageResultDefinition().match(unrelated)).toBeNull()
+  })
+
+  it('keeps rendering metadata from the pre-rename package', () => {
+    const definition = createImageResultDefinition()
+    const legacyEvent = {
+      ...resultEvent,
+      data: { ...resultEvent.data, meta: { ...resultEvent.data.meta, kind: 'dsh-image-gen' } },
+    }
+    const identity = definition.match(legacyEvent)
+    expect(identity).toMatchObject({ role: 'start' })
+    const legacyMatch = match(legacyEvent, 'start', 8)
+    const state = definition.start(context(undefined, [legacyMatch], 8, identity!.id), legacyMatch, reader)
+    expect(definition.buildViewNode(context(state, [legacyMatch], 8, identity!.id))).toMatchObject({
+      data: { results: [{ attachment, prompt: 'a promoted image' }] },
+    })
   })
 })
 
@@ -187,7 +202,7 @@ describe('ptc dispatch image results (#38)', () => {
     expect(definition.match({ ...dispatchEvent, data: { ...dispatchEvent.data, content: [{ type: 'image', attachment: { attachmentId: 'sha256:x' } }] } })).toBeNull()
     expect(definition.match({ ...dispatchEvent, data: { ...dispatchEvent.data, subCallId: '' } })).toBeNull()
     // Turn-less non-dispatch events stay ignored exactly as before.
-    expect(definition.match({ type: 'tool/result', seq: 20, data: { meta: { kind: 'dsh-image-gen' } } })).toBeNull()
+    expect(definition.match({ type: 'tool/result', seq: 20, data: { meta: { kind: 'dazi-image-gen' } } })).toBeNull()
   })
 
   it('builds a card node from the dispatch alone, recovering fields from the fixed summary text', () => {

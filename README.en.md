@@ -1,20 +1,20 @@
 <div align="center">
 
-<img src="docs/assets/readme/hero-en.webp" alt="dsh-image-gen feature overview" width="100%" />
+<img src="docs/assets/readme/hero-en.webp" alt="dazi-image-gen feature overview" width="100%" />
 
 <br />
 
 <p><a href="README.md">简体中文</a> · <strong>English</strong></p>
 
-# 🎨 dsh-image-gen
+# 🎨 dazi-image-gen
 
 ### Native AI image creation suite for DeepSeek Harness
 
 <p><b>AI Creative Canvas · In-chat generation and editing · Studio batch creation · Multi-model comparison · 500+ prompt inspirations · Gallery management · Local ComfyUI · Subscription no-key</b></p>
 
 <p>
-  <a href="https://www.npmjs.com/package/dsh-image-gen"><img src="https://img.shields.io/npm/v/dsh-image-gen?style=flat-square&color=4f6ef7" alt="npm version" /></a>
-  <a href="https://www.npmjs.com/package/dsh-image-gen"><img src="https://img.shields.io/npm/dm/dsh-image-gen?style=flat-square&color=10b981" alt="npm downloads" /></a>
+  <a href="https://www.npmjs.com/package/dazi-image-gen"><img src="https://img.shields.io/npm/v/dazi-image-gen?style=flat-square&color=4f6ef7" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/dazi-image-gen"><img src="https://img.shields.io/npm/dm/dazi-image-gen?style=flat-square&color=10b981" alt="npm downloads" /></a>
   <a href="https://github.com/x-llm-net/dazi-image-gen/actions/workflows/ci.yml"><img src="https://github.com/x-llm-net/dazi-image-gen/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <a href="https://dsh-insights.com/p/x-llm-net/dazi-image-gen"><img src="https://dsh-insights.com/badge/x-llm-net/dazi-image-gen.svg" alt="DSH Insights health" /></a>
   <a href="https://github.com/x-llm-net/dazi-image-gen/stargazers"><img src="https://img.shields.io/github/stars/x-llm-net/dazi-image-gen?style=flat-square" alt="GitHub stars" /></a>
@@ -47,13 +47,13 @@
 
 **A complete AI image creation workflow for DeepSeek Harness.**
 
-`dsh-image-gen` goes far beyond basic in-chat image generation. It brings **in-chat generation with continuous editing**, an **AI creative canvas**, **Studio batch creation**, **side-by-side multi-model comparison**, a **prompt inspiration library**, and **local ComfyUI** workflows into DSH.
+`dazi-image-gen` goes far beyond basic in-chat image generation. It brings **in-chat generation with continuous editing**, an **AI creative canvas**, **Studio batch creation**, **side-by-side multi-model comparison**, a **prompt inspiration library**, and **local ComfyUI** workflows into DSH.
 
 It supports mainstream cloud image models and private local workflows, works with BYOK (bring your own key) or subscription accounts, and can isolate generated assets by workspace.
 
 ### Dazi workbench fork
 
-This repository is the Dazi workbench fork. The npm package name remains `dsh-image-gen` so Harness bundle IDs, routes, and existing settings stay compatible. The Dazi layer only binds the image provider to the native workbench model settings; it does not copy API keys or replace the Harness Agent, permissions, or file tools.
+This repository is the Dazi workbench image plugin. Its npm package is `dazi-image-gen`, deliberately separate from the upstream `dsh-image-gen`. The Dazi layer only binds the image provider to the native workbench model settings; it does not copy API keys or replace the Harness Agent, permissions, or file tools.
 
 After installation in Dazi, the image settings card shows **Dazi model**. It reads the provider and model list already configured under **Settings → Models**, so the image plugin only needs a model selection—no second Base URL or API key. The default provider id is `xiaowen-runtime`, with `gpt-image-2.5` as the default image model.
 
@@ -63,7 +63,7 @@ For normal users, open the **Plugins** page from Dazi's sidebar, choose **Add pl
 git+https://github.com/x-llm-net/dazi-image-gen.git
 ```
 
-If the upstream `dsh-image-gen` is already installed, uninstall it from **Plugins → Installed** before adding this Dazi fork. The plugin manager does not allow two sources for the same package name; Xiaowen model credentials remain in **Settings → Models** and do not need to be entered again.
+If the upstream `dsh-image-gen` is already installed, disable or uninstall it from **Plugins → Installed** before enabling this Dazi plugin. They are separate packages but expose overlapping image tools; Xiaowen model credentials remain in **Settings → Models** and do not need to be entered again.
 
 Or run this in the profile terminal:
 
@@ -83,7 +83,7 @@ pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-ge
 
 > **Update notice:** This release includes major changes. Existing users should update to the latest version.
 
-<img src="docs/assets/readme/workflow-overview-en.webp" alt="dsh-image-gen complete AI image creation workflow" width="100%" />
+<img src="docs/assets/readme/workflow-overview-en.webp" alt="dazi-image-gen complete AI image creation workflow" width="100%" />
 
 ---
 
@@ -105,7 +105,7 @@ pnpm dsh plugin --profile web add git+https://github.com/x-llm-net/dazi-image-ge
 
 Requirements: Dazi workbench (based on DeepSeek Harness), Node.js `^22.19.0` or `>= 24.0.0`.
 
-If the upstream `dsh-image-gen` is already installed, uninstall it from **Plugins → Installed** first; the plugin manager does not allow duplicate package names.
+If the upstream `dsh-image-gen` is already installed, disable or uninstall it from **Plugins → Installed** first; the two packages expose overlapping image tools.
 
 Run this command in the Dazi profile terminal:
 
@@ -134,7 +134,7 @@ pnpm dsh plugin --profile web add ./dazi-image-gen
 
 ### 2. Choose an image model
 
-After installing and enabling the plugin, open the **Plugins** page from the sidebar and select **dsh-image-gen** under **Installed**. The default **Dazi model** reuses the Xiaowen provider and credentials from Model settings, so you do not need to enter another API key or Base URL. Click **Fetch models**, choose an available image model (for example, `gpt-image-2.5`), and save.
+After installing and enabling the plugin, open the **Plugins** page from the sidebar and select **dazi-image-gen** under **Installed**. The default **Dazi model** reuses the Xiaowen provider and credentials from Model settings, so you do not need to enter another API key or Base URL. Click **Fetch models**, choose an available image model (for example, `gpt-image-2.5`), and save.
 
 To use ComfyUI, another cloud provider, or a subscription login, expand the corresponding provider settings and follow the prompts there.
 
@@ -212,7 +212,7 @@ Express your ideas on an infinite canvas and turn drafts, compositions, and thou
 <br />
 
 <div align="center">
-  <img src="docs/assets/readme/studio-workbench.webp" alt="dsh-image-gen Studio workbench" width="100%" />
+  <img src="docs/assets/readme/studio-workbench.webp" alt="dazi-image-gen Studio workbench" width="100%" />
   <br />
   <sub>Import references, control parameters, generate batches, select results, and save—all within one Studio.</sub>
 </div>
@@ -361,7 +361,7 @@ Bring private image generation on your local GPU directly into Agent conversatio
 <details>
 <summary><strong>What should I do if “Image Generation” is missing after installation?</strong></summary>
 
-Open the **Plugins** page from the sidebar and select dsh-image-gen under **Installed**. Older Harness versions may place plugin settings under **Settings → Plugin Configuration**.
+Open the **Plugins** page from the sidebar and select dazi-image-gen under **Installed**. Older Harness versions may place plugin settings under **Settings → Plugin Configuration**.
 
 If it is missing in both places, fully restart the current DSH Profile, then inspect the plugin configuration:
 
@@ -369,14 +369,14 @@ If it is missing in both places, fully restart the current DSH Profile, then ins
 dsh --profile web --dump-config
 ```
 
-If `dsh-image-gen` is absent from the output, run the installation command again. When filing an issue, include the DSH version, plugin version, and relevant error logs, but never include your API key.
+If `dazi-image-gen` is absent from the output, run the installation command again. When filing an issue, include the DSH version, plugin version, and relevant error logs, but never include your API key.
 
 </details>
 
 <details>
 <summary><strong>Where are generated images saved?</strong></summary>
 
-When “Save to workspace” is enabled, chat results are saved to the `dsh-image-gen/` subdirectory of the current workspace by default. You can change this directory in Settings. Studio candidates remain on the temporary canvas until you select which results should enter the gallery and be saved.
+When “Save to workspace” is enabled, chat results are saved to the `dazi-image-gen/` subdirectory of the current workspace by default. You can change this directory in Settings. Studio candidates remain on the temporary canvas until you select which results should enter the gallery and be saved.
 
 </details>
 
@@ -428,7 +428,7 @@ This project is open source under the [Apache License 2.0](LICENSE).
 
 <div align="center">
 
-If `dsh-image-gen` improves your workflow, consider giving the project a ⭐ **Star** to support continued maintenance.
+If `dazi-image-gen` improves your workflow, consider giving the project a ⭐ **Star** to support continued maintenance.
 
 **[View Releases](https://github.com/x-llm-net/dazi-image-gen/releases) · [Open an Issue](https://github.com/x-llm-net/dazi-image-gen/issues) · [Contribute](CONTRIBUTING.md)**
 

@@ -115,7 +115,7 @@ function uploadFilename(mediaType: ImageMediaType): string {
   if (extension === undefined) {
     throw new Error(`ComfyUI edit_image accepts PNG, JPEG, or WebP source images; got ${mediaType}`)
   }
-  return `dsh-image-gen-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.${extension}`
+  return `dazi-image-gen-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.${extension}`
 }
 
 async function submitWorkflow(baseURL: URL, workflow: Record<string, unknown>, signal: AbortSignal): Promise<string> {

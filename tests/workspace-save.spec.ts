@@ -48,7 +48,7 @@ describe('workspaceImageDir', () => {
     expect(workspaceImageDir(root, undefined)).toBe(root)
     expect(workspaceImageDir(root, '')).toBe(root)
     expect(workspaceImageDir(root, 'a/b')).toBe(resolve(root, 'a/b'))
-    expect(workspaceImageDir(root, '  dsh-image-gen  ')).toBe(resolve(root, 'dsh-image-gen'))
+    expect(workspaceImageDir(root, '  dazi-image-gen  ')).toBe(resolve(root, 'dazi-image-gen'))
   })
 
   it('rejects folders that escape the workspace', () => {
@@ -60,7 +60,7 @@ describe('workspaceImageDir', () => {
 
 describe('saveImageToWorkspace', () => {
   it('writes the image bytes under the configured folder', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-'))
     try {
       const bytes = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])
       const saved = await saveImageToWorkspace({ workspaceRoot: base, folder: 'nested/deep', attachmentId: 'sha256:0123456789abcdef', mediaType: 'image/png', data: bytes })
@@ -72,7 +72,7 @@ describe('saveImageToWorkspace', () => {
   })
 
   it('writes into the workspace root when the folder is empty', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-'))
     try {
       const saved = await saveImageToWorkspace({ workspaceRoot: base, folder: '', attachmentId: 'sha256:fedcba9876543210', mediaType: 'image/jpeg', data: new Uint8Array([1]) })
       expect(saved.startsWith(base)).toBe(true)
@@ -81,7 +81,7 @@ describe('saveImageToWorkspace', () => {
   })
 
   it('overwrites the same content-addressed file instead of duplicating it', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-'))
     try {
       const bytes = new Uint8Array([1, 2, 3])
       const first = await saveImageToWorkspace({ workspaceRoot: base, folder: undefined, attachmentId: 'sha256:aaaa1111', mediaType: 'image/webp', data: bytes, signal: new AbortController().signal })
@@ -92,7 +92,7 @@ describe('saveImageToWorkspace', () => {
   })
 
   it('honours an already-aborted signal without touching the disk', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-'))
     try {
       const controller = new AbortController()
       controller.abort()
@@ -102,8 +102,8 @@ describe('saveImageToWorkspace', () => {
   })
 
   it('rejects a configured folder that symlinks outside the workspace', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-'))
-    const outside = await mkdtemp(join(tmpdir(), 'dsh-image-gen-out-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-'))
+    const outside = await mkdtemp(join(tmpdir(), 'dazi-image-gen-out-'))
     try {
       await symlink(outside, join(base, 'escape'), isWin ? 'junction' : 'dir')
       await expect(saveImageToWorkspace({ workspaceRoot: base, folder: 'escape', attachmentId: 'sha256:cccc3333', mediaType: 'image/png', data: new Uint8Array([7]) })).rejects.toThrow(/must stay inside/)
@@ -115,8 +115,8 @@ describe('saveImageToWorkspace', () => {
   })
 
   it('rejects an escaping symlink on an intermediate folder segment', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-'))
-    const outside = await mkdtemp(join(tmpdir(), 'dsh-image-gen-out-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-'))
+    const outside = await mkdtemp(join(tmpdir(), 'dazi-image-gen-out-'))
     try {
       await mkdir(join(base, 'sub'))
       await symlink(outside, join(base, 'sub', 'escape'), isWin ? 'junction' : 'dir')
@@ -129,7 +129,7 @@ describe('saveImageToWorkspace', () => {
   })
 
   it('allows a folder symlink that resolves back inside the workspace', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-'))
     try {
       await mkdir(join(base, 'real'))
       await symlink(join(base, 'real'), join(base, 'link'), isWin ? 'junction' : 'dir')
@@ -140,7 +140,7 @@ describe('saveImageToWorkspace', () => {
   })
 
   it('does not report success when cancelled during the final rename', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-'))
     try {
       const controller = new AbortController()
       renameHooks.queue.push(() => controller.abort())
@@ -153,7 +153,7 @@ describe('saveImageToWorkspace', () => {
 
 describe('deleteImageFromWorkspace', () => {
   it('deletes an existing generated image file', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-del-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-del-'))
     try {
       const saved = await saveImageToWorkspace({
         workspaceRoot: base,
@@ -173,7 +173,7 @@ describe('deleteImageFromWorkspace', () => {
   })
 
   it('rejects deleting files that do not conform to generated image name pattern', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-del-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-del-'))
     try {
       const customFile = join(base, 'important-document.txt')
       const ok = await deleteImageFromWorkspace(customFile, [base])
@@ -184,8 +184,8 @@ describe('deleteImageFromWorkspace', () => {
   })
 
   it('rejects deleting files outside allowed workspace roots', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-del-'))
-    const outside = await mkdtemp(join(tmpdir(), 'dsh-image-gen-other-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-del-'))
+    const outside = await mkdtemp(join(tmpdir(), 'dazi-image-gen-other-'))
     try {
       const saved = await saveImageToWorkspace({
         workspaceRoot: outside,
@@ -204,7 +204,7 @@ describe('deleteImageFromWorkspace', () => {
   })
 
   it('rejects deleting a file if it is a symbolic link', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-sym-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-sym-'))
     try {
       const target = join(base, 'secret.txt')
       await writeFile(target, 'important')
@@ -223,7 +223,7 @@ describe('deleteImageFromWorkspace', () => {
   })
 
   it('rejects short or invalid sha256 attachment ids in fallback deletion', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-del-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-del-'))
     try {
       expect(await deleteImageByAttachmentIdFromWorkspace('a', { allowedWorkspaceRoots: [base] })).toBe(false)
       expect(await deleteImageByAttachmentIdFromWorkspace('sha256:123', { allowedWorkspaceRoots: [base] })).toBe(false)
@@ -233,11 +233,11 @@ describe('deleteImageFromWorkspace', () => {
   })
 
   it('finds and deletes a file by attachmentId across candidate directories', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-del-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-del-'))
     try {
       const saved = await saveImageToWorkspace({
         workspaceRoot: base,
-        folder: 'dsh-image-gen',
+        folder: 'dazi-image-gen',
         attachmentId: 'sha256:12345678abcdef0112345678abcdef0112345678abcdef0112345678abcdef01',
         mediaType: 'image/png',
         data: new Uint8Array([9, 8, 7]),
@@ -245,7 +245,7 @@ describe('deleteImageFromWorkspace', () => {
       expect((await stat(saved)).isFile()).toBe(true)
 
       const ok = await deleteImageByAttachmentIdFromWorkspace('sha256:12345678abcdef0112345678abcdef0112345678abcdef0112345678abcdef01', {
-        folder: 'dsh-image-gen',
+        folder: 'dazi-image-gen',
         allowedWorkspaceRoots: [base],
       })
       expect(ok).toBe(true)
@@ -256,10 +256,10 @@ describe('deleteImageFromWorkspace', () => {
   })
 
   it('returns false when no matching file exists on disk in fallback deletion', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'dsh-image-gen-del-'))
+    const base = await mkdtemp(join(tmpdir(), 'dazi-image-gen-del-'))
     try {
       const ok = await deleteImageByAttachmentIdFromWorkspace('sha256:00000000abcdef0112345678abcdef0112345678abcdef0112345678abcdef01', {
-        folder: 'dsh-image-gen',
+        folder: 'dazi-image-gen',
         allowedWorkspaceRoots: [base],
       })
       expect(ok).toBe(false)
@@ -349,7 +349,7 @@ describe('workspace scoping and isolation for gallery items', () => {
       provider: 'google' as const,
       model: 'imagen',
       createdAt: Date.now(),
-      savedTo: 'D:\\z\\standalone\\dsh-image-gen\\image-123.png',
+      savedTo: 'D:\\z\\standalone\\dazi-image-gen\\image-123.png',
     }
     expect(isItemInWorkspace(item, { path: 'd:/z/standalone' })).toBe(true)
     expect(isItemInWorkspace(item, { path: 'D:\\z\\other-project' })).toBe(false)
@@ -441,7 +441,7 @@ describe('getDshWorkspaceRoots & dynamic deletion', () => {
 
       const saved = await saveImageToWorkspace({
         workspaceRoot: fakeWs,
-        folder: 'dsh-image-gen',
+        folder: 'dazi-image-gen',
         attachmentId: 'sha256:1122334455667788990011223344556677889900112233445566778899001122',
         mediaType: 'image/png',
         data: new Uint8Array([1, 2, 3]),
