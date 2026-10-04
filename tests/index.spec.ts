@@ -1,5 +1,6 @@
 import type { Context } from '@deepseek-ai/cordis'
 import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
+import WebServer from '@deepseek-ai/dsh-host-webserver'
 import type { ToolDefinition } from '@deepseek-ai/dsh-tools'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -66,6 +67,32 @@ function toolByName(tools: ToolDefinition[], name: string): ToolDefinition {
 describe('image tool registration', () => {
   beforeEach(() => { vi.clearAllMocks() })
   afterEach(() => { vi.unstubAllGlobals() })
+
+  it('registers current and legacy routes with the actual service method and disposes both', () => {
+    const { ctx } = harnessContext()
+    const exact = new Map(), prefixes = new Map()
+    // Use the upstream instance method, which requires its service receiver,
+    // without starting a socket in this unit test.
+    const webServer = Object.assign(Object.create(WebServer.prototype), { exact, prefixes })
+    const cleanups: (() => void)[] = []
+    Object.assign(ctx, {
+      webServer,
+      effect: (setup: () => unknown) => {
+        const cleanup = setup()
+        if (typeof cleanup === 'function') cleanups.push(cleanup as () => void)
+      },
+    })
+    apply(ctx, { provider: 'google', saveToWorkspace: false })
+    for (const namespace of ['dazi-image-gen', 'dsh-image-gen']) {
+      for (const route of ['image', 'import', 'delete', 'save-workspace', 'test', 'canvas-state', 'canvas-asset', 'studio', 'subscription-login', 'subscription-status']) {
+        expect(exact.has(`/plugins/${namespace}/${route}`)).toBe(true)
+      }
+      expect(prefixes.has(`/plugins/${namespace}/inspiration`)).toBe(true)
+    }
+    for (const cleanup of cleanups.reverse()) cleanup()
+    expect(exact.size).toBe(0)
+    expect(prefixes.size).toBe(0)
+  })
 
   it('installs the settings section through the modern service API', () => {
     const { ctx, tools, installSection } = harnessContext()

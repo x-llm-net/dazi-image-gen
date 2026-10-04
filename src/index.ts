@@ -1,7 +1,7 @@
 /** Multi-provider image-generation Bundle for DeepSeek Harness. */
 import type { Context } from '@deepseek-ai/cordis'
 import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import type {} from '@deepseek-ai/dsh-host-webserver'
+import type { WebRoute } from '@deepseek-ai/dsh-host-webserver'
 import type { SettingsForms } from '@deepseek-ai/dsh-settings'
 import { defineTool, type ToolResult } from '@deepseek-ai/dsh-tools'
 import { Config, migrateOpenAICompatConfig, resolveProvider, selectComfyUIWorkflow, withProviderOverrides, type AspectRatio, type ImageSize } from './config.js'
@@ -87,22 +87,15 @@ function providerOverrideOf(value: unknown): ImageProvider | undefined {
 /** Register the current route and a short-lived alias for pre-rename sessions. */
 function registerRouteAliases(
   ctx: Context,
-  registration: { kind: 'exact' | 'prefix'; path: string; handler: (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => unknown },
+  registration: WebRoute,
   legacyPath: string,
   label: string,
 ): void {
-  ctx.effect(() => {
-    const register = ctx.webServer.register as unknown as (value: unknown) => unknown
-    const cleanups = [
-      register(registration),
-      register({ ...registration, path: legacyPath }),
-    ]
-    return () => {
-      for (const cleanup of cleanups) {
-        if (typeof cleanup === 'function') cleanup()
-      }
-    }
-  }, label)
+  for (const path of [registration.path, legacyPath]) {
+    // Keep the service receiver: register() reads this.exact/this.prefixes.
+    // Each route owns a separate effect so a failed alias is also cleaned up.
+    ctx.effect(() => ctx.webServer.register({ ...registration, path }), label)
+  }
 }
 
 export function apply(ctx: Context, config: Config = {}): void {

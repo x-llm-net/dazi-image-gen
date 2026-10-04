@@ -1,6 +1,6 @@
 {
   "name": "dazi-image-gen",
-  "version": "0.8.5-dazi.2",
+  "version": "0.8.5-dazi.3",
   "description": "Dazi image generation plugin with native workbench provider binding.",
   "type": "module",
   "author": "x-llm-net",
